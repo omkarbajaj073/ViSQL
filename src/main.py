@@ -92,7 +92,6 @@ class Menu:
         query_menu.addAction(self.create_t)
 
 
-
     def show_create(self):
         dialog = CreateDb()
         dialog.exec()
@@ -105,7 +104,7 @@ class Menu:
         self.view.stacked_widget.setCurrentIndex(cnt - 1)
 
     def create_table(self):
-        widget_to_add = ManageTables(self.database)
+        widget_to_add = CreateTable(self.database)
         self.view.stacked_widget.addWidget(widget_to_add)
         cnt = self.view.stacked_widget.count()
         self.view.stacked_widget.setCurrentIndex(cnt - 1)
@@ -130,7 +129,6 @@ class Menu:
 def main():
     app = QApplication(sys.argv)
     widget1 = Home()
-    # widget2 = ManageTables()
     w = MainWindow([widget1, QWidget()], host='localhost', user='root', password='sql123')
     m = Menu(w)
     w.show()

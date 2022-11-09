@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import *
+import PyQt6.QtCore as QtCore
 
 from utils import *
 
@@ -23,7 +24,10 @@ class Table(QDialog):
 
     for i in range(x):
       for j in range(y):
-        self.table.setItem(i, j, QTableWidgetItem(str(self.results[i][j])))
+        cell = QTableWidgetItem(str(self.results[i][j]))
+        # TODO: Make cells read only
+        # cell.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.table.setItem(i, j, cell)
 
     layout.addWidget(self.table)
     self.setLayout(layout)

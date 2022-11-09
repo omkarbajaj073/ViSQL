@@ -38,3 +38,24 @@ def get_data(cur, table, attributes, order_by=None):
 
   cur.execute(query)
   return cur.fetchall()
+
+
+def create_table(cur, name, attributes):
+  query = f'''
+  create table {name} ({','.join(attributes)});
+  '''
+  cur.execute(query)
+
+
+def format_attribute(name, data, not_null, pk, default):
+  # TODO: Add stuff for default  
+  att = f'{name} {data} '
+  if not_null:
+    att += 'not null '
+  if pk:
+    att += 'primary key '
+  # if default:
+  #   att += 'default '
+  #   if 
+  return att
+    
