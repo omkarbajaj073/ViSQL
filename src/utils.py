@@ -1,4 +1,7 @@
 import mysql.connector as connector
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 def get_databases():
   con = connector.connect(host='localhost', user='root', password='sql123')
@@ -44,18 +47,25 @@ def create_table(cur, name, attributes):
   query = f'''
   create table {name} ({','.join(attributes)});
   '''
+  query = query.strip()
+  logging.debug(f'{query=}')
   cur.execute(query)
 
 
 def format_attribute(name, data, not_null, pk, default):
-  # TODO: Add stuff for default  
   att = f'{name} {data} '
   if not_null:
     att += 'not null '
   if pk:
     att += 'primary key '
-  # if default:
-  #   att += 'default '
-  #   if 
+  if default:
+    att += 'default '
+    if data == 'Integer':
+      att += f'{default}'
+    else:
+      att += f'\'{default}\''
   return att
     
+
+def insert_data(cur, table, data):
+  pass

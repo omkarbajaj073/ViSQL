@@ -91,6 +91,12 @@ class Menu:
         self.create_t.setEnabled(0)
         query_menu.addAction(self.create_t)
 
+        self.insert = QAction(query_menu)
+        self.insert.setText("Insert Rows")
+        self.insert.triggered.connect(self.insert_rows)
+        self.insert.setEnabled(0)
+        query_menu.addAction(self.insert)
+
 
     def show_create(self):
         dialog = CreateDb()
@@ -105,6 +111,12 @@ class Menu:
 
     def create_table(self):
         widget_to_add = CreateTable(self.database)
+        self.view.stacked_widget.addWidget(widget_to_add)
+        cnt = self.view.stacked_widget.count()
+        self.view.stacked_widget.setCurrentIndex(cnt - 1)
+
+    def insert_rows(self):
+        widget_to_add = InsertData(self.database)
         self.view.stacked_widget.addWidget(widget_to_add)
         cnt = self.view.stacked_widget.count()
         self.view.stacked_widget.setCurrentIndex(cnt - 1)

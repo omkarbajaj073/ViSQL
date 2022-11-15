@@ -7,7 +7,6 @@ from components import *
 import logging
 from styles import stylesCreateTable
 from utils import *
-
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -63,7 +62,6 @@ class CreateAttribute(QDialog):
   def __init__(self, parent):
     super().__init__()
     layout = QVBoxLayout()
-    
     # TODO: foreign key, check, unique
     num_fields = 5
     layouts = [QHBoxLayout() for i in range(num_fields)]
@@ -126,8 +124,8 @@ class CreateAttribute(QDialog):
 class CreateTable(QWidget):
   def __init__(self, db):
     super().__init__()
-    con = connector.connect(host='localhost', password='sql123', user='root', database=db) # ! Update parameters eventually
-    self.cur = con.cursor()
+    self.con = connector.connect(host='localhost', password='sql123', user='root', database=db) # ! Update parameters eventually
+    self.cur = self.con.cursor()
     layout = QVBoxLayout()
 
     layout_title = QHBoxLayout()
@@ -144,11 +142,16 @@ class CreateTable(QWidget):
     headers = ['Name', 'Data Type', 'Not Null?', 'Primary Key?', 'Default Value']
     self.table = QTableWidget(0, 5)
     self.table.setHorizontalHeaderLabels(headers)
+
+    create_table_btn = QPushButton("Create Table")
+    create_table_btn.clicked.connect(self.create_table)
     
 
     layout.addLayout(layout_title)
     layout.addWidget(add_att)
     layout.addWidget(self.table)
+    layout.addWidget(create_table_btn)
+
     self.setLayout(layout)
 
 
@@ -159,7 +162,16 @@ class CreateTable(QWidget):
 
   def create_table(self):
     # ! Add a few checks
+    name = self.name.text()
+    logging.debug(f'{name=}')
     create_table(self.cur, self.name.text(), self.attributes)
+    dialog = SuccessDialog("Table created!")
+    dialog.exec()
+    
+    
+  def close(self):
+    self.con.close()
+    super().close()
 
   	
 '''

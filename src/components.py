@@ -9,6 +9,13 @@ class ErrorDialog(QDialog):
     layout = QVBoxLayout()
     layout.addWidget(QLabel(error))
     self.setLayout(layout)
+    
+class SuccessDialog(QDialog):
+  def __init__(self, txt):
+    super().__init__()
+    layout = QVBoxLayout()
+    layout.addWidget(QLabel(txt))
+    self.setLayout(layout)
 
 
 class Table(QDialog):
@@ -162,8 +169,10 @@ class SelectQueries(QWidget):
       error_dialog = ErrorDialog("Please make sure the table and at least 1 attribute is selected.")
       error_dialog.exec()
 
-
   def close(self):
     self.con.close()
     super().close()
+    
+
+
     

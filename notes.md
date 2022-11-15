@@ -5,4 +5,3 @@
   - Where clause
   - Update table
   - Insert into table
-  - Create table
