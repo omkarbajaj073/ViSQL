@@ -5,8 +5,10 @@ import sys
 from components import *
 
 import logging
-from styles import stylesCreateTable
+# from styles import stylesCreateTable
 from utils import *
+
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -61,24 +63,25 @@ class InsertData(QWidget):
     self.con = connector.connect(host='localhost', password='sql123', user='root', database=db) # ! Update parameters eventually
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
+    
+    self.table_name = None
 
     layout_title = QHBoxLayout()
     layout_title.addWidget(QLabel("Table Name: "))
     self.name = QLineEdit()
+    use_table = QPushButton("Use Table")
+    use_table.clicked.connect(self.set_table)
     layout_title.addWidget(self.name)
 
-    add_att = QPushButton("Add Attribute")
-    add_att.clicked.connect(self.add_attribute)
-
-    self.attributes = []
+    add_att = QPushButton("Add Data Item")
+    add_att.clicked.connect(self.add_item)
 
     # TODO: Adjust the geometry of the table
-    headers = ['Name', 'Data Type', 'Not Null?', 'Primary Key?', 'Default Value']
-    self.table = QTableWidget(0, 5)
-    self.table.setHorizontalHeaderLabels(headers)
 
-    create_table_btn = QPushButton("Create Table")
-    create_table_btn.clicked.connect(self.create_table)
+    self.table = QTableWidget(0, 0)
+
+    create_table_btn = QPushButton("Insert Data")
+    create_table_btn.clicked.connect(self.insert_data)
     
 
     layout.addLayout(layout_title)
@@ -90,12 +93,21 @@ class InsertData(QWidget):
     self.setLayout(layout)
 
 
-  def add_attribute(self):
-    dialog = CreateAttribute(self)
+  def add_item(self):
+    dialog = DataItem(self)
     dialog.exec()
+    
+  def set_table(self):
+    self.table_name = self.name.text()
+    # TODO: make sure this is a valid name
+    
+    header = get_table_attributes(self.cur, self.table_name)
+    self.table.setRowCount(0)
+    self.table.setColumnCount(len(header))
+    self.table.setHorizontalHeaderLabels(header)
 
 
-  def create_table(self):
+  def insert_data(self):
     # ! Add a few checks
     name = self.name.text()
     logging.debug(f'{name=}')

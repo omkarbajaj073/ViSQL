@@ -1,7 +1,51 @@
 from PyQt6.QtWidgets import *
-import PyQt6.QtCore as QtCore
+# import PyQt6.QtCore as QtCore
+
+import mysql.connector as connector
 
 from utils import *
+
+
+class CreateDb(QDialog):
+  def __init__(self):
+    super().__init__()
+
+    # ! Error label appears next to main layout
+    mainlayout = QVBoxLayout()
+    sublayout = QHBoxLayout()
+
+    self.label = QLabel("Enter DB name: ")
+    self.edit = QLineEdit()
+    self.push = QPushButton("Create")
+    self.push.clicked.connect(self.create_db)
+
+    # TODO: Implement error field
+    self.error = QLabel()
+
+    sublayout.addWidget(self.label)
+    sublayout.addWidget(self.edit)
+    sublayout.addWidget(self.push)
+    # sublayout.addWidget(self.error)
+
+    mainlayout.addLayout(sublayout)
+    mainlayout.addWidget(self.error)
+
+    self.setLayout(mainlayout)
+
+  def create_db(self):
+    name = self.edit.text()
+
+    if name.isidentifier():
+      try:
+        create_database(name)
+        self.edit.hide()
+        self.push.hide()
+        self.error.hide()
+        self.label.setText("Database created. Close this dialogue and proceed.")
+      except connector.errors.DatabaseError:
+        self.error.setText("A database with that name already exists.")
+    else:
+      self.error.setText("Invalid database name!")
 
 class ErrorDialog(QDialog):
   def __init__(self, error):

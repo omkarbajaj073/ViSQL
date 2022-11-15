@@ -5,10 +5,10 @@ from PyQt6.QtCore import QRect, Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import *
 
-import mysql.connector as connector
 import logging
 
-from useDb import *
+from components import CreateDb
+from insert import InsertData
 from tables import *
 
 logging.basicConfig(level=logging.DEBUG)
