@@ -153,23 +153,114 @@ class Constraint(QDialog):
   def __init__(self, parent, table):
     super().__init__()
     self.parent = parent
-
+    self.constraints = ['Logical', 'List', 'Regex', 'Is Null', "Is Not Null"]
     
-    '''
-    1. Comparisons
-    2. Like
-    3. In
-    4. null
-    '''
-
+    self.select_constraint = QComboBox()
+    self.select_constraint.addItems(self.constraints)
+    self.select_constraint.activated.connect(self.constraint_selected)
 
     atts = get_table_attributes(self.parent.cur, table)
-    layout = QVBoxLayout()
+    self.layout = QVBoxLayout()
 
 
+    inds = {
+      "comp": 0,
+      "in": 1,
+      "like": 2,
+      "null": 3,
+      "not_null": 4
+    }
 
+    self.combo_boxes = [QComboBox() for i in range(5)]
+    for box in self.combo_boxes:
+      box.addItems(atts)
+
+    self.widgets = [QWidget() for i in range(5)]
     
-    self.setLayout(layout)
+    for widget in self.widgets:
+      widget.hide()
+    
+    layouts = [QHBoxLayout() for _ in range(5)]
+
+    # * Layouts for is null, is not null
+    layouts[3].addWidget(self.combo_boxes[3])
+    layouts[4].addWidget(self.combo_boxes[4])
+    
+    # * layout for in
+
+    layouts[1] = QVBoxLayout()
+
+    sublayout = QHBoxLayout()
+    sublayout.addWidget(QLabel("Enter Value: "))
+    self.cur_value = QLineEdit()
+    self.add_value_btn = QPushButton("Add Value")
+    self.add_value_btn.clicked.connect(self.add_value)
+    sublayout.addWidget(self.cur_value)
+    sublayout.addWidget(self.add_value_btn)
+    
+    self.selected_values = []
+    self.values = QLabel()
+    self.clear_values_btn = QPushButton("Clear All Values")
+    self.clear_values_btn.clicked.connect(self.clear_values)
+    
+    self.combo_boxes[2].activated.connect(self.clear_values)
+    layouts[1].addWidget(self.combo_boxes[2])
+    layouts[1].addLayout(sublayout)
+    layouts[1].addWidget(self.values)
+    layouts[1].addWidget(self.clear_values_btn)
+
+
+    for i in range(5):
+      self.widgets[i].setLayout(layouts[i])
+
+    self.cur_layout = None
+
+    self.btn = QPushButton("Add constraint")
+    self.btn.clicked.connect(self.add_constraint)
+
+    self.layout.addWidget(QLabel("Select constraint type:"))
+    self.layout.addWidget(self.select_constraint)
+    for widget in self.widgets:
+      self.layout.addWidget(widget)
+
+    self.layout.addWidget(self.btn)
+
+    self.setLayout(self.layout)
+
+  def constraint_selected(self):
+    if self.cur_layout is not None:
+      self.widgets[self.cur_layout].hide()
+    self.cur_layout = self.select_constraint.currentIndex()
+
+    self.widgets[self.cur_layout].show()
+
+  def add_constraint(self):
+    if self.cur_layout == 0:
+      pass
+    if self.cur_layout == 1:
+      pass
+    if self.cur_layout == 2:
+      pass
+    if self.cur_layout == 3:
+      pass
+    if self.cur_layout == 4:
+      pass
+    logging.info("This piece of code is reached - add constriant")
+
+  
+  def add_value(self):
+    value = self.cur_value.text()
+    if value in self.selected_values:
+      return
+
+    self.selected_values.append(value)
+    self.values.setText("Values: " + ', '.join(self.selected_values))
+    self.cur_value.setText("")
+  
+  def clear_values(self):
+    self.selected_values.clear()
+    self.values.setText('No values added.')
+
     
     
 
