@@ -41,84 +41,11 @@ class ManageTables(QWidget):
 
 
   def select_action(self, b):
-	
-      if b.text() == "Select":
-         if b.isChecked() == True:
-            print(b.text() + " is selected")
-            self.select_layout.show()
-         else:
-            print(b.text() + " is deselected")
-            self.select_layout.hide()
-
-				
-      if b.text() == "Update":
-         if b.isChecked() == True:
-            logging.info(b.text() + " is selected")
-         else:
-            logging.info(b.text() + " is deselected")
-
-
-class CreateAttribute(QDialog):
-  def __init__(self, parent):
-    super().__init__()
-    layout = QVBoxLayout()
-    # TODO: foreign key, check, unique
-    num_fields = 5
-    layouts = [QHBoxLayout() for i in range(num_fields)]
-    labels = ['Name of Attribute', 'Data Type', 'Not Null', 'Primary Key', 'Default Value']
-
-    for i in range(num_fields):
-      layouts[i].addWidget(QLabel(labels[i]))
-
-    self.name = QLineEdit()
-    layouts[0].addWidget(self.name)
-
-    self.type = QComboBox()
-    types = ['Integer', 'Varchar(30)', 'Date'] # TODO
-    self.type.addItems(types)
-    layouts[1].addWidget(self.type)
-    
-    self.not_null = QCheckBox("Yes")
-    layouts[2].addWidget(self.not_null)
-    
-    self.primary_key = QCheckBox("Yes")
-    layouts[3].addWidget(self.primary_key)
-    
-    self.default = QLineEdit()
-    layouts[4].addWidget(self.default)
-
-    self.set_att = QPushButton("Confirm")
-    self.set_att.clicked.connect(self.set_attribute)
-
-    for sublayout in layouts:
-      layout.addLayout(sublayout)
-    
-    layout.addWidget(self.set_att)
-
-    self.setLayout(layout)
-    self.parent = parent
-
-
-  def set_attribute(self):
-    # ! Add checks to make sure things work
-    
-    params = [self.name.text(), self.type.currentText(), self.not_null.isChecked(), self.primary_key.isChecked(), self.default.text()]
-    self.parent.attributes.append(format_attribute(*params))
-
-    params[2] = 'Yes' if params[2] else 'No'
-    params[3] = 'Yes' if params[3] else 'No'
-    params[4] = params[4] if params[4] else 'None'
-
-    currentRowCount = self.parent.table.rowCount()
-    logging.debug(f'{currentRowCount=}')
-    self.parent.table.insertRow(currentRowCount)   
-
-    for i, param in enumerate(params):
-      logging.debug("param: " + param)
-      self.parent.table.setItem(currentRowCount, i, QTableWidgetItem(param))
-
-    logging.debug(f'{self.parent.attributes=}')
-    self.close()  
+    if b.text() == "Select":
+      if b.isChecked():
+        self.select_layout.show()
+      else:
+        self.select_layout.hide()
 
 
 class CreateTable(QWidget):

@@ -127,6 +127,7 @@ class Menu:
         self.view.setWindowTitle(f'VISQL: {db.upper()}')
         self.query.setEnabled(1)
         self.create_t.setEnabled(1)
+        self.insert.setEnabled(1)
 
     def display_dbs(self):
         databases = get_databases()

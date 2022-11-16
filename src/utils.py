@@ -21,7 +21,7 @@ def create_database(name):
 def get_table_attributes(cur, table):
   cur.execute(f'show columns from {table}')
   cols = cur.fetchall()
-  cols = map(lambda i: i[0], cols)
+  cols = list(map(lambda i: i[0], cols))
   return cols
 
 

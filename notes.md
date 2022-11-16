@@ -4,4 +4,9 @@
 
   - Where clause
   - Update table
-  - Insert into table
+  - Insert into table (There are a few Todos)
+  - Resizing
+  - Data integrity
+  - Styling
+  - Foreign Key constraint
+  - Aggregate functions

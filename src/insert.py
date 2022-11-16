@@ -68,10 +68,12 @@ class InsertData(QWidget):
 
     layout_title = QHBoxLayout()
     layout_title.addWidget(QLabel("Table Name: "))
-    self.name = QLineEdit()
+    self.name = QComboBox()
+    self.name.addItems(get_tables(self.cur))
     use_table = QPushButton("Use Table")
     use_table.clicked.connect(self.set_table)
     layout_title.addWidget(self.name)
+    layout_title.addWidget(use_table)
 
     add_att = QPushButton("Add Data Item")
     add_att.clicked.connect(self.add_item)
@@ -94,13 +96,11 @@ class InsertData(QWidget):
 
 
   def add_item(self):
-    dialog = DataItem(self)
+    dialog = DataItem(self, self.table_name)
     dialog.exec()
     
   def set_table(self):
-    self.table_name = self.name.text()
-    # TODO: make sure this is a valid name
-    
+    self.table_name = self.name.currentText()
     header = get_table_attributes(self.cur, self.table_name)
     self.table.setRowCount(0)
     self.table.setColumnCount(len(header))
@@ -111,6 +111,11 @@ class InsertData(QWidget):
     # ! Add a few checks
     name = self.name.text()
     logging.debug(f'{name=}')
+
+    # TODO: Handle data types in add data item
+    # TODO: Format and run query - match case sorta syntax to decide quotes.
+    # TODO: ComboBox for enum datatype
+    # * desc table returns a list. second element is a byte string with the datatype.
     # create_table(self.cur, self.name.text(), self.attributes)
     # TODO: Query
     dialog = SuccessDialog("Data Inserted!")

@@ -6,6 +6,71 @@ import mysql.connector as connector
 from utils import *
 
 
+
+
+class CreateAttribute(QDialog):
+  def __init__(self, parent):
+    super().__init__()
+    layout = QVBoxLayout()
+    # TODO: foreign key, check, unique
+    num_fields = 5
+    layouts = [QHBoxLayout() for i in range(num_fields)]
+    labels = ['Name of Attribute', 'Data Type', 'Not Null', 'Primary Key', 'Default Value']
+
+    for i in range(num_fields):
+      layouts[i].addWidget(QLabel(labels[i]))
+
+    self.name = QLineEdit()
+    layouts[0].addWidget(self.name)
+
+    self.type = QComboBox()
+    types = ['Integer', 'Varchar(30)', 'Date'] # TODO
+    self.type.addItems(types)
+    layouts[1].addWidget(self.type)
+    
+    self.not_null = QCheckBox("Yes")
+    layouts[2].addWidget(self.not_null)
+    
+    self.primary_key = QCheckBox("Yes")
+    layouts[3].addWidget(self.primary_key)
+    
+    self.default = QLineEdit()
+    layouts[4].addWidget(self.default)
+
+    self.set_att = QPushButton("Confirm")
+    self.set_att.clicked.connect(self.set_attribute)
+
+    for sublayout in layouts:
+      layout.addLayout(sublayout)
+    
+    layout.addWidget(self.set_att)
+
+    self.setLayout(layout)
+    self.parent = parent
+
+
+  def set_attribute(self):
+    # ! Add checks to make sure things work
+    
+    params = [self.name.text(), self.type.currentText(), self.not_null.isChecked(), self.primary_key.isChecked(), self.default.text()]
+    self.parent.attributes.append(format_attribute(*params))
+
+    params[2] = 'Yes' if params[2] else 'No'
+    params[3] = 'Yes' if params[3] else 'No'
+    params[4] = params[4] if params[4] else 'None'
+
+    currentRowCount = self.parent.table.rowCount()
+    logging.debug(f'{currentRowCount=}')
+    self.parent.table.insertRow(currentRowCount)   
+
+    for i, param in enumerate(params):
+      logging.debug("param: " + param)
+      self.parent.table.setItem(currentRowCount, i, QTableWidgetItem(param))
+
+    logging.debug(f'{self.parent.attributes=}')
+    self.close()  
+
+
 class CreateDb(QDialog):
   def __init__(self):
     super().__init__()
@@ -84,18 +149,40 @@ class Table(QDialog):
     self.setLayout(layout)
 
 
+class Constraint(QDialog):
+  def __init__(self, parent, table):
+    super().__init__()
+    self.parent = parent
+
+    
+    '''
+    1. Comparisons
+    2. Like
+    3. In
+    4. null
+    '''
+
+
+    atts = get_table_attributes(self.parent.cur, table)
+    layout = QVBoxLayout()
+
+
+
+    
+    self.setLayout(layout)
+    
+    
+
 class SelectQueries(QWidget):
   def __init__(self, con):
     super().__init__()
+    self.cur = con.cursor()
 
     layout = QVBoxLayout()
-
-    self.cursor = con.cursor()
-    
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
     self.table_dropdown = QComboBox()
-    self.table_dropdown.addItems(get_tables(self.cursor))
+    self.table_dropdown.addItems(get_tables(self.cur))
     self.table_dropdown.activated.connect(self.table_activated)
 
     self.all_attributes = []
@@ -103,7 +190,6 @@ class SelectQueries(QWidget):
 
     layout_table.addWidget(table_title)
     layout_table.addWidget(self.table_dropdown)
-
 
     layout_att = QHBoxLayout()
     att_title = QLabel("Attributes: ")
@@ -117,7 +203,7 @@ class SelectQueries(QWidget):
     self.att_remove = QPushButton("Remove")
     self.att_remove.clicked.connect(lambda: self.remove_attribute())
     
-    self.att_clear = QPushButton("Clear`")
+    self.att_clear = QPushButton("Clear")
     self.att_clear.clicked.connect(lambda: self.clear_attributes())
 
     # TODO: Solve the text overflow here
@@ -125,7 +211,6 @@ class SelectQueries(QWidget):
     self.att_addAll.clicked.connect(lambda: self.add_all_attributes())
     
     self.att_selected = QLabel("No attribtues selected.")
-
 
     layout_att.addWidget(att_title)
     layout_att.addWidget(self.att_dropdown)
@@ -135,6 +220,16 @@ class SelectQueries(QWidget):
     layout_att.addWidget(self.att_addAll)
 
 
+    # * Where functionality
+    self.constraints = []
+    
+    btn_constraint = QPushButton("Add Constraint")
+    btn_constraint.clicked.connect(self.add_constraint)
+    
+    self.display_constraints = QWidget()
+    self.reset_constraints = QPushButton("Remove all constraints")
+    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
+
     layout_order = QHBoxLayout()
     layout_order.addWidget(QLabel("Sorted by: "))
     self.order_dropdown = QComboBox()
@@ -142,16 +237,18 @@ class SelectQueries(QWidget):
 
     layout_order.addWidget(self.order_dropdown)
 
-
     # TODO: Disable button when no text in table
-    btn = QPushButton("Run Query")
-    btn.clicked.connect(lambda: self.run_query())
+    btn_query = QPushButton("Run Query")
+    btn_query.clicked.connect(lambda: self.run_query())
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
     layout.addWidget(self.att_selected)
+    layout.addWidget(btn_constraint)
+    layout.addWidget(self.display_constraints)
+    layout.addWidget(self.reset_constraints)
     layout.addLayout(layout_order)
-    layout.addWidget(btn)
+    layout.addWidget(btn_query)
     self.setLayout(layout)
 
 
@@ -162,14 +259,14 @@ class SelectQueries(QWidget):
     self.att_dropdown.clear()
 
     table = self.table_dropdown.currentText()
-    self.all_attributes = list(get_table_attributes(self.cursor, table))
+    self.all_attributes = list(get_table_attributes(self.cur, table))
     self.att_dropdown.addItems(self.all_attributes)
 
     self.order_dropdown.setDisabled(False)
     self.order_dropdown.clear()
 
     table = self.table_dropdown.currentText()
-    self.all_attributes = list(get_table_attributes(self.cursor, table))
+    self.all_attributes = list(get_table_attributes(self.cur, table))
     self.order_dropdown.addItem("None")
     self.order_dropdown.addItems(self.all_attributes)
 
@@ -199,6 +296,10 @@ class SelectQueries(QWidget):
     self.selected_attributes = self.all_attributes.copy()
     self.att_selected.setText('All attributes selected.')
 
+  def add_constraint(self):
+    dialog = Constraint(self, self.table_dropdown.currentText())
+    dialog.exec()
+    
   def run_query(self):
     table = self.table_dropdown.currentText()
     attributes = self.selected_attributes
