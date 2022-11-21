@@ -10,3 +10,6 @@
   - Styling
   - Foreign Key constraint
   - Aggregate functions
+  - Delete table
+  - Delete rows
+  - Natural join
