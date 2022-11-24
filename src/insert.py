@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import *
 
 import sys
-
+from constants import *
 from components import *
 
 import logging
@@ -60,7 +60,7 @@ class DataItem(QDialog):
 class InsertData(QWidget):
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host='localhost', password='sql123', user='root', database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
     

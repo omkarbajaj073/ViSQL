@@ -7,6 +7,8 @@ from components import *
 import logging
 from styles import stylesCreateTable
 from utils import *
+from constants import *
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -16,7 +18,7 @@ class ManageTables(QWidget):
   def __init__(self, db):
     super().__init__()
 
-    self.con = connector.connect(host='localhost', password='sql123', user='root', database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
     logging.info("connected" if self.con.is_connected() else "not connected but no error")
 
     layout = QVBoxLayout()
@@ -51,7 +53,7 @@ class ManageTables(QWidget):
 class CreateTable(QWidget):
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host='localhost', password='sql123', user='root', database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
 

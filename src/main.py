@@ -10,6 +10,8 @@ import logging
 from components import CreateDb
 from insert import InsertData
 from tables import *
+from constants import *
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -142,7 +144,7 @@ class Menu:
 def main():
     app = QApplication(sys.argv)
     widget1 = Home()
-    w = MainWindow([widget1, QWidget()], host='localhost', user='root', password='sql123')
+    w = MainWindow([widget1, QWidget()], host=host, user=user, password=password)
     m = Menu(w)
     w.show()
     app.exec()

@@ -1,11 +1,12 @@
 import mysql.connector as connector
 import logging
+from constants import *
 from datetime import datetime as time
 
 logging.basicConfig(level=logging.DEBUG)
 
 def get_databases():
-  con = connector.connect(host='localhost', user='root', password='sql123')
+  con = connector.connect(host=host, user=user, password=password)
   cur = con.cursor()
   cur.execute('show databases')
   dbs = cur.fetchall()
@@ -14,7 +15,7 @@ def get_databases():
 
 
 def create_database(name):
-  con = connector.connect(host='localhost', user='root', password='sql123')
+  con = connector.connect(host=host, user=user, password=password)
   cur = con.cursor()
   query = f'create database {name}'
   cur.execute(query)
