@@ -2,14 +2,19 @@
 
 2. Things left to do: 
 
-  - Where clause
-  - Update table
-  - Insert into table (There are a few Todos)
-  - Resizing
-  - Data integrity
-  - Styling
-  - Foreign Key constraint
-  - Aggregate functions
+  Om: (Finish all layouts. Leave query functionality for later)
+  - Where clause - formatting to query + layouts for logical and regex.
+  - Logical where operator
+  - Update table - Think about this once select is done. It's very similar.
+  - Insert into table (There are a few Todos - format to a query)
+  - Aggregate functions - (if time permits)
+  
+  
+  Ant: 
+  - Resizing - fields to match text length
+  - Data integrity - try except around each query and print the error field.
   - Delete table
   - Delete rows
-  - Natural join
+  
+  
+  - Styling (if time permits)
