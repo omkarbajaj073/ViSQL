@@ -33,7 +33,8 @@ class MainWindow(QMainWindow):
     def __init__(self, widgets, **kwargs):
         super().__init__()
         self.setWindowTitle("ViSQL")
-
+        self.setFixedSize(800, 600)
+        
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         lay = QVBoxLayout(central_widget)
@@ -53,7 +54,7 @@ class Menu:
     def __init__(self, MainWindow):
         super().__init__()
         self.view = MainWindow
-        self.view.setFixedSize(500, 300)
+        # self.view.setFixedSize(800, 600)
         self.database = None
         self.view.setWindowTitle(f"VISQL: (NO DATABASE SELECTED)")
 

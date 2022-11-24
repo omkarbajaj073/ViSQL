@@ -40,6 +40,7 @@ class ManageTables(QWidget):
     layout.addWidget(self.select_layout)
 
     self.setLayout(layout)
+    self.setMinimumSize(750, 500)
 
 
   def select_action(self, b):
