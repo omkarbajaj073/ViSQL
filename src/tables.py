@@ -26,10 +26,13 @@ class ManageTables(QWidget):
     check2.toggled.connect(lambda:self.select_action(check2))
     check3 = QRadioButton('Aggregate Functions')
     check3.toggled.connect(lambda:self.select_action(check3))
-    
+    check4 = QRadioButton('Delete')
+    check4.toggled.connect(lambda:self.select_action(check4))
 
     db_action_layout.addWidget(check1)
     db_action_layout.addWidget(check2)
+    db_action_layout.addWidget(check3)
+
     # * Select action layout
     self.select_layout = SelectQueries(self.con)
     self.update_layout = UpdateQueries(self.con)
@@ -39,11 +42,16 @@ class ManageTables(QWidget):
     self.update_layout.hide()
     self.group_layout.hide()
 
+    self.delete_layout = DeleteData(self.con)
+    self.delete_layout.hide()
+
     layout.addLayout(db_action_layout)
     layout.addWidget(self.select_layout)
     layout.addWidget(self.update_layout)
+    layout.addWidget(self.delete_layout)
 
     self.setLayout(layout)
+    self.setMinimumSize(750, 500)
 
 
   def select_action(self, b):
@@ -66,6 +74,12 @@ class ManageTables(QWidget):
         self.group_layout.hide()
 
         
+
+    elif b.text() == "Delete":
+      if b.isChecked():
+        self.delete_layout.show()
+      else:
+        self.delete_layout.hide()
 
 
 class CreateTable(QWidget):
@@ -114,6 +128,49 @@ class CreateTable(QWidget):
     create_table(self.cur, self.name.text(), self.attributes)
     dialog = SuccessDialog("Table created!")
     dialog.exec()
+    
+    
+  def close(self):
+    self.con.close()
+    super().close()
+
+
+
+class DeleteTable(QWidget):
+  def __init__(self, db):
+    super().__init__()
+    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
+    self.cur = self.con.cursor()
+    layout = QVBoxLayout()
+
+    layout_table = QHBoxLayout()
+    table_title = QLabel("Table: ")
+    self.table_dropdown = QComboBox()
+    self.table_dropdown.addItems(get_tables(self.cur))
+    self.table_dropdown.activated.connect(self.table_activated)
+
+    layout_table.addWidget(table_title)
+    layout_table.addWidget(self.table_dropdown)
+
+    self.delete_table_btn = QPushButton("Delete Table")
+    self.delete_table_btn.setDisabled(True)
+    self.delete_table_btn.clicked.connect(self.delete_table)
+    
+
+    layout.addLayout(layout_table)
+    layout.addWidget(self.delete_table_btn)
+
+    self.setLayout(layout)
+
+    
+  def table_activated(self):
+    self.delete_table_btn.setDisabled(False)
+
+
+  def delete_table(self):
+    table = self.table_dropdown.currentText()
+    delete_table(self.cur, table)
+    logging.info(f'{table} table DELETED')
     
     
   def close(self):

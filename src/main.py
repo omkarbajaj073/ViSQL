@@ -33,7 +33,8 @@ class MainWindow(QMainWindow):
     def __init__(self, widgets, **kwargs):
         super().__init__()
         self.setWindowTitle("ViSQL")
-
+        self.setFixedSize(800, 600)
+        
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         lay = QVBoxLayout(central_widget)
@@ -53,7 +54,7 @@ class Menu:
     def __init__(self, MainWindow):
         super().__init__()
         self.view = MainWindow
-        self.view.setFixedSize(500, 300)
+        # self.view.setFixedSize(800, 600)
         self.database = None
         self.view.setWindowTitle(f"VISQL: (NO DATABASE SELECTED)")
 
@@ -99,6 +100,12 @@ class Menu:
         self.insert.setEnabled(0)
         query_menu.addAction(self.insert)
 
+        self.delete_t = QAction(query_menu)
+        self.delete_t.setText("Delete Table")
+        self.delete_t.triggered.connect(self.delete_table)
+        self.delete_t.setEnabled(0)
+        query_menu.addAction(self.delete_t)
+
 
     def show_create(self):
         dialog = CreateDb()
@@ -123,6 +130,12 @@ class Menu:
         cnt = self.view.stacked_widget.count()
         self.view.stacked_widget.setCurrentIndex(cnt - 1)
 
+    def delete_table(self):
+        widget_to_add = DeleteTable(self.database)
+        self.view.stacked_widget.addWidget(widget_to_add)
+        cnt = self.view.stacked_widget.count()
+        self.view.stacked_widget.setCurrentIndex(cnt - 1)
+
 
     def use_db(self, db):
         self.database = db
@@ -130,6 +143,8 @@ class Menu:
         self.query.setEnabled(1)
         self.create_t.setEnabled(1)
         self.insert.setEnabled(1)
+        self.delete_t.setEnabled(1)
+
 
     def display_dbs(self):
         databases = get_databases()

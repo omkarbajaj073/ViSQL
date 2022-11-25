@@ -107,31 +107,19 @@ class CreateDb(QDialog):
         self.push.hide()
         self.error.hide()
         self.label.setText("Database created. Close this dialogue and proceed.")
-      except connector.errors.DatabaseError:
+      except connector.errors.DatabaseError: 
         self.error.setText("A database with that name already exists.")
     else:
       self.error.setText("Invalid database name!")
 
 
-class ErrorDialog(QDialog):
-  def __init__(self, error):
-    super().__init__()
-    layout = QVBoxLayout()
-    layout.addWidget(QLabel(error))
-    self.setLayout(layout)
-
-    
-class SuccessDialog(QDialog):
-  def __init__(self, txt):
-    super().__init__()
-    layout = QVBoxLayout()
-    layout.addWidget(QLabel(txt))
-    self.setLayout(layout)
-
-
 class Table(QDialog):
   def __init__(self, cursor, table, attributes, order_by=None):
     super().__init__()
+
+    self.showMaximized()
+    # self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
+    # self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
 
     layout = QVBoxLayout()
 
@@ -284,6 +272,8 @@ class SelectQueries(QWidget):
     self.table_dropdown = QComboBox()
     self.table_dropdown.addItems(get_tables(self.cur))
     self.table_dropdown.activated.connect(self.table_activated)
+    # width = self.table_dropdown.minimumSizeHint().width()
+    # self.table_dropdown.view().setMinimumWidth(width)
 
     self.all_attributes = []
     self.selected_attributes = []
@@ -349,6 +339,7 @@ class SelectQueries(QWidget):
     layout.addWidget(self.reset_constraints)
     layout.addLayout(layout_order)
     layout.addWidget(btn_query)
+
     self.setLayout(layout)
 
 
@@ -407,7 +398,7 @@ class SelectQueries(QWidget):
       order_by = None
 
     if attributes:
-      show_table = Table(self.cursor, table, attributes, order_by)
+      show_table = Table(self.cur, table, attributes, order_by)
       show_table.exec()
     else:
       error_dialog = ErrorDialog("Please make sure the table and at least 1 attribute is selected.")
@@ -576,10 +567,56 @@ class GroupBy(QWidget):
     attributes = self.selected_attributes
     order_by = self.group_dropdown.currentText()
     
+class DeleteData(QWidget):
+  def __init__(self, con):
+    super().__init__()
+    self.cur = con.cursor()
+
+    layout = QVBoxLayout()
+    layout_table = QHBoxLayout()
+    table_title = QLabel("Table: ")
+    self.table_dropdown = QComboBox()
+    self.table_dropdown.addItems(get_tables(self.cur))
+    self.table_dropdown.activated.connect(self.table_activated)
+    # width = self.table_dropdown.minimumSizeHint().width()
+    # self.table_dropdown.view().setMinimumWidth(width)
+
+
+    layout_table.addWidget(table_title)
+    layout_table.addWidget(self.table_dropdown)
+
+    # * Where functionality
+    self.constraints = []
+    
+    btn_constraint = QPushButton("Add Constraint")
+    btn_constraint.clicked.connect(self.add_constraint)
+    
     logging.info("Running query")
     # TODO: Run query
 
-    
-    
+    self.display_constraints = QWidget()
+    self.reset_constraints = QPushButton("Remove all constraints")
+    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
 
+    # TODO: Disable button when no text in table
+    self.btn_delete = QPushButton("Delete Rows")
+    self.btn_delete.clicked.connect(lambda: self.run_delete())
+    self.btn_delete.setDisabled(True)
+
+    layout.addLayout(layout_table)
+    layout.addWidget(btn_constraint)
+    layout.addWidget(self.display_constraints)
+    layout.addWidget(self.reset_constraints)
+    layout.addWidget(self.btn_delete)
+
+    self.setLayout(layout)
+
+
+  def table_activated(self):
+    self.btn_delete.setDisabled(False)
+
+        
+  def add_constraint(self):
+    dialog = Constraint(self, self.table_dropdown.currentText())
+    dialog.exec()
     
