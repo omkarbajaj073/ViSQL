@@ -29,3 +29,6 @@
 3. Bugs - 
   - Constantly creating new pages instead of popping off the old widget
   - ManageTables - transitioning between layouts - new cursors are created. Do the old ones have to be closed or anything?
+
+4. Ideas
+  - Input data type whenever you have to update something or add things to a list. (where clause in operator, update statements)
