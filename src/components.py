@@ -112,20 +112,6 @@ class CreateDb(QDialog):
     else:
       self.error.setText("Invalid database name!")
 
-class ErrorDialog(QDialog):
-  def __init__(self, error):
-    super().__init__()
-    layout = QVBoxLayout()
-    layout.addWidget(QLabel(error))
-    self.setLayout(layout)
-    
-class SuccessDialog(QDialog):
-  def __init__(self, txt):
-    super().__init__()
-    layout = QVBoxLayout()
-    layout.addWidget(QLabel(txt))
-    self.setLayout(layout)
-
 
 class Table(QDialog):
   def __init__(self, cursor, table, attributes, order_by=None):
@@ -417,5 +403,66 @@ class SelectQueries(QWidget):
     super().close()
     
 
+class DeleteData(QWidget):
+  def __init__(self, con):
+    super().__init__()
+    self.cur = con.cursor()
+
+    layout = QVBoxLayout()
+    layout_table = QHBoxLayout()
+    table_title = QLabel("Table: ")
+    self.table_dropdown = QComboBox()
+    self.table_dropdown.addItems(get_tables(self.cur))
+    self.table_dropdown.activated.connect(self.table_activated)
+    # width = self.table_dropdown.minimumSizeHint().width()
+    # self.table_dropdown.view().setMinimumWidth(width)
+
+
+    layout_table.addWidget(table_title)
+    layout_table.addWidget(self.table_dropdown)
+
+    # * Where functionality
+    self.constraints = []
+    
+    btn_constraint = QPushButton("Add Constraint")
+    btn_constraint.clicked.connect(self.add_constraint)
+    
+    self.display_constraints = QWidget()
+    self.reset_constraints = QPushButton("Remove all constraints")
+    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
+
+    # TODO: Disable button when no text in table
+    self.btn_delete = QPushButton("Delete Rows")
+    self.btn_delete.clicked.connect(lambda: self.run_delete())
+    self.btn_delete.setDisabled(True)
+
+    layout.addLayout(layout_table)
+    layout.addWidget(btn_constraint)
+    layout.addWidget(self.display_constraints)
+    layout.addWidget(self.reset_constraints)
+    layout.addWidget(self.btn_delete)
+
+    self.setLayout(layout)
+
+
+  def table_activated(self):
+    self.btn_delete.setDisabled(False)
+
+        
+  def add_constraint(self):
+    dialog = Constraint(self, self.table_dropdown.currentText())
+    dialog.exec()
+    
+  def run_delete(self):
+    table = self.table_dropdown.currentText()
+    delete_rows(self.cur, table)
+
+
+  def close(self):
+    self.con.close()
+    super().close()
+
+
+  
 
     
