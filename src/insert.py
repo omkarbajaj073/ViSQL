@@ -60,7 +60,7 @@ class DataItem(QDialog):
 class InsertData(QWidget):
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db) 
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
     

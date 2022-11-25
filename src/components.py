@@ -164,23 +164,19 @@ class Constraint(QDialog):
     atts = get_table_attributes(self.parent.cur, table)
     self.layout = QVBoxLayout()
 
-
-    inds = {
-      "comp": 0,
-      "in": 1,
-      "like": 2,
-      "null": 3,
-      "not_null": 4
-    }
+    # inds = {
+    #   "comp": 0,
+    #   "in": 1,
+    #   "like": 2,
+    #   "null": 3,
+    #   "not_null": 4
+    # }
 
     self.combo_boxes = [QComboBox() for i in range(5)]
     for box in self.combo_boxes:
       box.addItems(atts)
 
     self.widgets = [QWidget() for i in range(5)]
-    
-    for widget in self.widgets:
-      widget.hide()
     
     layouts = [QHBoxLayout() for _ in range(5)]
 
@@ -205,15 +201,23 @@ class Constraint(QDialog):
     self.clear_values_btn = QPushButton("Clear All Values")
     self.clear_values_btn.clicked.connect(self.clear_values)
     
-    self.combo_boxes[2].activated.connect(self.clear_values)
-    layouts[1].addWidget(self.combo_boxes[2])
+    self.combo_boxes[1].activated.connect(self.clear_values)
+    layouts[1].addWidget(self.combo_boxes[1])
     layouts[1].addLayout(sublayout)
     layouts[1].addWidget(self.values)
     layouts[1].addWidget(self.clear_values_btn)
-
+    
+    
+    # * layout for regex
+    layouts[2].addWidget(self.combo_boxes[2])
+    self.regex = QLineEdit()
+    layouts[2].addWidget(QLabel("Regex: "))
+    layouts[2].addWidget(self.regex)
+    
 
     for i in range(5):
       self.widgets[i].setLayout(layouts[i])
+      self.widgets[i].hide()
 
     self.cur_layout = None
 
@@ -228,6 +232,7 @@ class Constraint(QDialog):
     self.layout.addWidget(self.btn)
 
     self.setLayout(self.layout)
+
 
   def constraint_selected(self):
     if self.cur_layout is not None:
@@ -248,6 +253,7 @@ class Constraint(QDialog):
     if self.cur_layout == 4:
       pass
     logging.info("This piece of code is reached - add constriant")
+    # TODO: Update the parent component
 
   
   def add_value(self):

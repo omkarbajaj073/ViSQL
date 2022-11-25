@@ -3,12 +3,14 @@
 2. Things left to do: 
 
   Om: (Finish all layouts. Leave query functionality for later)
-  - Where clause - formatting to query + layouts for logical and regex.
-  - Logical where operator
-  - Update table - (Layout Done)
-  - Insert into table (There are a few Todos - format to a query)
-  - Aggregate functions - (if time permits)
+  - Logical where, regex operator
+  - Update table - <strong>(Layout Done)</strong>
   
+  Query functions left - 
+  - Constraints
+  - Update (handle the data types)
+  - Insert into table
+  - Aggregate functions - (if time permits)
   
   Ant: 
   - Resizing - fields to match text length
@@ -18,6 +20,7 @@
   
   
   - Styling (if time permits)
+  - Help page to explain basic things like regex and all. (if time permits. Static page)
 
   Not gonna do - 
   - Foreign key
