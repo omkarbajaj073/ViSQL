@@ -5,7 +5,7 @@
   Om: (Finish all layouts. Leave query functionality for later)
   - Where clause - formatting to query + layouts for logical and regex.
   - Logical where operator
-  - Update table - Think about this once select is done. It's very similar.
+  - Update table - (Layout Done)
   - Insert into table (There are a few Todos - format to a query)
   - Aggregate functions - (if time permits)
   
@@ -18,3 +18,6 @@
   
   
   - Styling (if time permits)
+
+  Not gonna do - 
+  - Foreign key

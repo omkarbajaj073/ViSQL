@@ -33,11 +33,14 @@ class ManageTables(QWidget):
     db_action_layout.addWidget(check2)
     # * Select action layout
     self.select_layout = SelectQueries(self.con)
+    self.update_layout = UpdateQueries(self.con)
 
     self.select_layout.hide()
+    self.update_layout.hide()
 
     layout.addLayout(db_action_layout)
     layout.addWidget(self.select_layout)
+    layout.addWidget(self.update_layout)
 
     self.setLayout(layout)
 
@@ -48,6 +51,14 @@ class ManageTables(QWidget):
         self.select_layout.show()
       else:
         self.select_layout.hide()
+        
+    if b.text() == "Update":
+      if b.isChecked():
+        self.update_layout.show()
+      else:
+        self.update_layout.hide()
+
+        
 
 
 class CreateTable(QWidget):
@@ -102,17 +113,5 @@ class CreateTable(QWidget):
     self.con.close()
     super().close()
 
-  	
-'''
-2. Form to add attributes - 
-  a. Name - textInput
-  b. Data type - dropdown
-  c. not null - checkbox
-  d. primary key - checkbox
-  e. foreign key - checkbox + 2 dropdowns / nested dropdown
-  f. default
-  g. check (if time permits)
-  h. unique - checkbox
-'''
 
 
