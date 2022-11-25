@@ -48,6 +48,7 @@ class ManageTables(QWidget):
     layout.addLayout(db_action_layout)
     layout.addWidget(self.select_layout)
     layout.addWidget(self.update_layout)
+    layout.addWidget(self.group_layout)
     layout.addWidget(self.delete_layout)
 
     self.setLayout(layout)
@@ -73,7 +74,6 @@ class ManageTables(QWidget):
       else:
         self.group_layout.hide()
 
-        
 
     elif b.text() == "Delete":
       if b.isChecked():
