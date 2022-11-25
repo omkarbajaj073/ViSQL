@@ -164,22 +164,25 @@ class Constraint(QDialog):
     atts = get_table_attributes(self.parent.cur, table)
     self.layout = QVBoxLayout()
 
-    # inds = {
-    #   "comp": 0,
-    #   "in": 1,
-    #   "like": 2,
-    #   "null": 3,
-    #   "not_null": 4
-    # }
-
-    self.combo_boxes = [QComboBox() for i in range(5)]
+    self.combo_boxes = [QComboBox() for _ in range(5)]
     for box in self.combo_boxes:
       box.addItems(atts)
 
-    self.widgets = [QWidget() for i in range(5)]
+    self.widgets = [QWidget() for _ in range(5)]
     
     layouts = [QHBoxLayout() for _ in range(5)]
-
+    
+    # * Layout for comparisons
+    self.comparators = QComboBox()
+    compare = ['=', '!=', '<', '>', '<=', '>=']
+    self.comparators.addItems(compare)
+    self.compare_value = QLineEdit()
+    
+    layouts[0].addWidget(self.combo_boxes[0])
+    layouts[0].addWidget(self.comparators)
+    layouts[0].addWidget(self.compare_value)
+    
+    
     # * Layouts for is null, is not null
     layouts[3].addWidget(self.combo_boxes[3])
     layouts[4].addWidget(self.combo_boxes[4])
@@ -267,9 +270,7 @@ class Constraint(QDialog):
   
   def clear_values(self):
     self.selected_values.clear()
-    self.values.setText('No values added.')
-
-    
+    self.values.setText('No values added.') 
     
 
 class SelectQueries(QWidget):
@@ -488,5 +489,11 @@ class UpdateQueries(QWidget):
     super().close()
     
 
+class GroupBy(QWidget):
+  def __init__(self, con):
+    super().__init__()
+    
+    self.cur = con.cursor()
+    
 
     
