@@ -12,9 +12,15 @@
   
   Ant: 
   - Resizing - fields to match text length
+    - Partially accomplished
   - Data integrity - try except around each query and print the error field.
+    - DONE
   - Delete table
+    - DONE
   - Delete rows
+    - Layout DONE
+    - Where clause TBD
+    - Query TBD
   
   
   - Styling (if time permits)
