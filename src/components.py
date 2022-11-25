@@ -413,9 +413,9 @@ class SelectQueries(QWidget):
       error_dialog = ErrorDialog("Please make sure the table and at least 1 attribute is selected.")
       error_dialog.exec()
 
-  def close(self):
-    self.con.close()
-    super().close()
+  # def close(self):
+  #   self.con.close()
+  #   super().close()
 
 
 class UpdateQueries(QWidget):
@@ -492,8 +492,94 @@ class UpdateQueries(QWidget):
 class GroupBy(QWidget):
   def __init__(self, con):
     super().__init__()
-    
     self.cur = con.cursor()
+
+    layout = QVBoxLayout()
+    layout_table = QHBoxLayout()
+    table_title = QLabel("Table: ")
+    self.table_dropdown = QComboBox()
+    self.table_dropdown.addItems(get_tables(self.cur))
+    self.table_dropdown.activated.connect(self.table_activated)
+    
+    layout_table.addWidget(table_title)
+    layout_table.addWidget(self.table_dropdown)
+
+
+    layout_att = QHBoxLayout()
+    att_title = QLabel("Function: ")
+
+    self.agg_function = QComboBox()
+    self.agg_function.setDisabled(True)
+    
+    self.att_dropdown = QComboBox()
+    self.att_dropdown.setDisabled(True)
+
+    layout_att.addWidget(att_title)
+    layout_att.addWidget(self.agg_function)
+    layout_att.addWidget(self.att_dropdown)
+
+
+    # * Where functionality
+    self.constraints = []
+    
+    btn_constraint = QPushButton("Add Constraint")
+    btn_constraint.clicked.connect(self.add_constraint)
+    
+    self.display_constraints = QWidget()
+    self.reset_constraints = QPushButton("Remove all constraints")
+    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
+
+    layout_group = QHBoxLayout()
+    layout_group.addWidget(QLabel("Grouped by: "))
+    self.group_dropdown = QComboBox()
+    self.group_dropdown.setDisabled(True)
+
+    layout_group.addWidget(self.group_dropdown)
+
+    # TODO: Disable button when no text in table
+    btn_query = QPushButton("Run Query")
+    btn_query.clicked.connect(lambda: self.run_query())
+
+    layout.addLayout(layout_table)
+    layout.addLayout(layout_att)
+    layout.addWidget(btn_constraint)
+    layout.addWidget(self.display_constraints)
+    layout.addWidget(self.reset_constraints)
+    layout.addLayout(layout_group)
+    layout.addWidget(btn_query)
+    self.setLayout(layout)
+
+
+  def table_activated(self):
+
+    self.selected_attributes.clear()
+    self.att_dropdown.setDisabled(False)
+    self.att_dropdown.clear()
+
+    table = self.table_dropdown.currentText()
+    self.all_attributes = list(get_table_attributes(self.cur, table))
+    self.att_dropdown.addItems(self.all_attributes)
+
+    self.group_dropdown.setDisabled(False)
+    self.group_dropdown.clear()
+
+    self.all_attributes = list(get_table_attributes(self.cur, table))
+    self.group_dropdown.addItem("None")
+    self.group_dropdown.addItems(self.all_attributes)
+
+  def add_constraint(self):
+    dialog = Constraint(self, self.table_dropdown.currentText())
+    dialog.exec()
+    
+  def run_query(self):
+    table = self.table_dropdown.currentText()
+    attributes = self.selected_attributes
+    order_by = self.group_dropdown.currentText()
+    
+    logging.info("Running query")
+    # TODO: Run query
+
+    
     
 
     

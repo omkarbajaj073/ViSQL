@@ -1,11 +1,7 @@
 from PyQt6.QtWidgets import *
-
-import sys
-
 from components import *
 
 import logging
-from styles import stylesCreateTable
 from utils import *
 from constants import *
 
@@ -28,15 +24,20 @@ class ManageTables(QWidget):
     check1.toggled.connect(lambda:self.select_action(check1))
     check2 = QRadioButton('Update')
     check2.toggled.connect(lambda:self.select_action(check2))
+    check3 = QRadioButton('Aggregate Functions')
+    check3.toggled.connect(lambda:self.select_action(check3))
+    
 
     db_action_layout.addWidget(check1)
     db_action_layout.addWidget(check2)
     # * Select action layout
     self.select_layout = SelectQueries(self.con)
     self.update_layout = UpdateQueries(self.con)
+    self.group_layout = GroupBy(self.con)
 
     self.select_layout.hide()
     self.update_layout.hide()
+    self.group_layout.hide()
 
     layout.addLayout(db_action_layout)
     layout.addWidget(self.select_layout)
@@ -57,6 +58,12 @@ class ManageTables(QWidget):
         self.update_layout.show()
       else:
         self.update_layout.hide()
+        
+    if b.text() == "Aggregate Functions":
+      if b.isChecked():
+        self.group_layout.show()
+      else:
+        self.group_layout.hide()
 
         
 

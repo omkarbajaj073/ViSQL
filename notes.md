@@ -3,7 +3,7 @@
 2. Things left to do: 
 
   Om: (Finish all layouts. Leave query functionality for later)
-  - Logical where, regex operator
+  - Logical where <strong>(Layout Done)</strong>, regex operator <strong>(Layout done)</strong>
   - Update table - <strong>(Layout Done)</strong>
   
   Query functions left - 
@@ -21,6 +21,11 @@
   
   - Styling (if time permits)
   - Help page to explain basic things like regex and all. (if time permits. Static page)
+  - Logical or operator
 
   Not gonna do - 
   - Foreign key
+
+3. Bugs - 
+  - Constantly creating new pages instead of popping off the old widget
+  - ManageTables - transitioning between layouts - new cursors are created. Do the old ones have to be closed or anything?
