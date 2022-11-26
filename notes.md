@@ -7,10 +7,13 @@
   - Update table - <strong>(Layout Done)</strong>
   
   Query functions left - 
-  - Constraints
-  - Update (handle the data types)
-  - Insert into table
-  - Aggregate functions - (if time permits)
+  - Extract table name box
+  - Where clause queries - 
+    - Constraints - (Om)
+    - Update - (Om)
+    - Delete rows - (Ant)
+    - Aggregate functions - (Om) 
+  - Insert into table (Ant)
   
   Ant: 
   - Resizing - fields to match text length
@@ -23,14 +26,10 @@
     - Layout DONE
     - Where clause TBD
     - Query TBD
-  
-  
+
+  - Natural join (if time permits)
   - Styling (if time permits)
   - Help page to explain basic things like regex and all. (if time permits. Static page)
-  - Logical or operator
-
-  Not gonna do - 
-  - Foreign key
 
 3. Bugs - 
   - Constantly creating new pages instead of popping off the old widget
