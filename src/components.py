@@ -6,8 +6,6 @@ import mysql.connector as connector
 from utils import *
 
 
-
-
 class CreateAttribute(QDialog):
   def __init__(self, parent):
     super().__init__()
@@ -118,8 +116,6 @@ class Table(QDialog):
     super().__init__()
 
     self.showMaximized()
-    # self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
-    # self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
 
     layout = QVBoxLayout()
 
@@ -140,7 +136,7 @@ class Table(QDialog):
 
 
 class Constraint(QDialog):
-  def __init__(self, parent, table):
+  def __init__(self, parent, attributes):
     super().__init__()
     self.parent = parent
     self.constraints = ['Logical', 'List', 'Regex', 'Is Null', "Is Not Null"]
@@ -149,7 +145,7 @@ class Constraint(QDialog):
     self.select_constraint.addItems(self.constraints)
     self.select_constraint.activated.connect(self.constraint_selected)
 
-    atts = get_table_attributes(self.parent.cur, table)
+    atts = attributes
     self.layout = QVBoxLayout()
 
     self.combo_boxes = [QComboBox() for _ in range(5)]
@@ -261,6 +257,35 @@ class Constraint(QDialog):
     self.values.setText('No values added.') 
     
 
+class ConstraintsBox(QWidget):
+  def __init__(self):
+    super().__init__()
+    self.constraints = []
+    self.attributes = None
+    
+    btn_constraint = QPushButton("Add Constraint")
+    btn_constraint.clicked.connect(self.add_constraint)
+    
+    self.display_constraints = QWidget()
+    self.reset_constraints = QPushButton("Remove all constraints")
+    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
+    
+    layout = QVBoxLayout()
+    layout.addWidget(btn_constraint)
+    layout.addWidget(self.display_constraints)
+    layout.addWidget(self.reset_constraints)
+    self.setLayout(layout)
+
+  def add_constraint(self):
+    if self.attributes is not None:
+      dialog = Constraint(self, self.attributes)
+      dialog.exec()
+    else:
+      dialog = ErrorDialog("Please select a table")
+      dialog.exec()
+
+    
+
 class SelectQueries(QWidget):
   def __init__(self, con):
     super().__init__()
@@ -272,8 +297,6 @@ class SelectQueries(QWidget):
     self.table_dropdown = QComboBox()
     self.table_dropdown.addItems(get_tables(self.cur))
     self.table_dropdown.activated.connect(self.table_activated)
-    # width = self.table_dropdown.minimumSizeHint().width()
-    # self.table_dropdown.view().setMinimumWidth(width)
 
     self.all_attributes = []
     self.selected_attributes = []
@@ -296,7 +319,6 @@ class SelectQueries(QWidget):
     self.att_clear = QPushButton("Clear")
     self.att_clear.clicked.connect(lambda: self.clear_attributes())
 
-    # TODO: Solve the text overflow here
     self.att_addAll = QPushButton("Add all attributes")
     self.att_addAll.clicked.connect(lambda: self.add_all_attributes())
     
@@ -311,15 +333,7 @@ class SelectQueries(QWidget):
 
 
     # * Where functionality
-    self.constraints = []
-    
-    btn_constraint = QPushButton("Add Constraint")
-    btn_constraint.clicked.connect(self.add_constraint)
-    
-    self.display_constraints = QWidget()
-    self.reset_constraints = QPushButton("Remove all constraints")
-    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
-
+    self.constraints_box = ConstraintsBox()
     layout_order = QHBoxLayout()
     layout_order.addWidget(QLabel("Sorted by: "))
     self.order_dropdown = QComboBox()
@@ -334,9 +348,7 @@ class SelectQueries(QWidget):
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
     layout.addWidget(self.att_selected)
-    layout.addWidget(btn_constraint)
-    layout.addWidget(self.display_constraints)
-    layout.addWidget(self.reset_constraints)
+    layout.addWidget(self.constraints_box)
     layout.addLayout(layout_order)
     layout.addWidget(btn_query)
 
@@ -350,7 +362,10 @@ class SelectQueries(QWidget):
     self.att_dropdown.clear()
 
     table = self.table_dropdown.currentText()
+    
     self.all_attributes = list(get_table_attributes(self.cur, table))
+    
+    self.constraints_box.attributes = self.all_attributes.copy()
     self.att_dropdown.addItems(self.all_attributes)
 
     self.order_dropdown.setDisabled(False)
@@ -386,13 +401,10 @@ class SelectQueries(QWidget):
     self.selected_attributes = self.all_attributes.copy()
     self.att_selected.setText('All attributes selected.')
 
-  def add_constraint(self):
-    dialog = Constraint(self, self.table_dropdown.currentText())
-    dialog.exec()
-    
   def run_query(self):
     table = self.table_dropdown.currentText()
     attributes = self.selected_attributes
+    constraints = self.constraints_box.constraints
     order_by = self.order_dropdown.currentText()
     if order_by in ['', 'None']:
       order_by = None
@@ -436,24 +448,15 @@ class UpdateQueries(QWidget):
     layout_att.addWidget(self.update_value)
     
     # * Where functionality
-    self.constraints = []
-    
-    btn_constraint = QPushButton("Add Constraint")
-    btn_constraint.clicked.connect(self.add_constraint)
-    
-    self.display_constraints = QWidget()
-    self.reset_constraints = QPushButton("Remove all constraints")
-    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
 
+    self.constraints_box = ConstraintsBox()
     # TODO: Disable button when no text in table
     btn_query = QPushButton("Run Query")
     btn_query.clicked.connect(lambda: self.run_query())
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
-    layout.addWidget(btn_constraint)
-    layout.addWidget(self.display_constraints)
-    layout.addWidget(self.reset_constraints)
+    layout.addWidet(self.constraints_box)
     layout.addWidget(btn_query)
     self.setLayout(layout)
 
@@ -464,12 +467,8 @@ class UpdateQueries(QWidget):
 
     table = self.table_dropdown.currentText()
     self.all_attributes = list(get_table_attributes(self.cur, table))
+    self.constraints_box.attributes = self.all_attributes.copy()
     self.att_dropdown.addItems(self.all_attributes)
-
-
-  def add_constraint(self):
-    dialog = Constraint(self, self.table_dropdown.currentText())
-    dialog.exec()
     
   def run_query(self):
     table = self.table_dropdown.currentText()
@@ -511,15 +510,8 @@ class GroupBy(QWidget):
 
 
     # * Where functionality
-    self.constraints = []
+    self.constraints_box = ConstraintsBox()
     
-    btn_constraint = QPushButton("Add Constraint")
-    btn_constraint.clicked.connect(self.add_constraint)
-    
-    self.display_constraints = QWidget()
-    self.reset_constraints = QPushButton("Remove all constraints")
-    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
-
     layout_group = QHBoxLayout()
     layout_group.addWidget(QLabel("Grouped by: "))
     self.group_dropdown = QComboBox()
@@ -533,9 +525,7 @@ class GroupBy(QWidget):
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
-    layout.addWidget(btn_constraint)
-    layout.addWidget(self.display_constraints)
-    layout.addWidget(self.reset_constraints)
+    layout.addWidget(self.constraints_box)
     layout.addLayout(layout_group)
     layout.addWidget(btn_query)
     self.setLayout(layout)
@@ -549,6 +539,7 @@ class GroupBy(QWidget):
 
     table = self.table_dropdown.currentText()
     self.all_attributes = list(get_table_attributes(self.cur, table))
+    self.constraints_box.attributes = self.all_attributes.copy()
     self.att_dropdown.addItems(self.all_attributes)
 
     self.group_dropdown.setDisabled(False)
@@ -578,25 +569,12 @@ class DeleteData(QWidget):
     self.table_dropdown = QComboBox()
     self.table_dropdown.addItems(get_tables(self.cur))
     self.table_dropdown.activated.connect(self.table_activated)
-    # width = self.table_dropdown.minimumSizeHint().width()
-    # self.table_dropdown.view().setMinimumWidth(width)
-
 
     layout_table.addWidget(table_title)
     layout_table.addWidget(self.table_dropdown)
 
     # * Where functionality
-    self.constraints = []
-    
-    btn_constraint = QPushButton("Add Constraint")
-    btn_constraint.clicked.connect(self.add_constraint)
-    
-    logging.info("Running query")
-    # TODO: Run query
-
-    self.display_constraints = QWidget()
-    self.reset_constraints = QPushButton("Remove all constraints")
-    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
+    self.constraints_box = ConstraintsBox()
 
     # TODO: Disable button when no text in table
     self.btn_delete = QPushButton("Delete Rows")
@@ -604,9 +582,7 @@ class DeleteData(QWidget):
     self.btn_delete.setDisabled(True)
 
     layout.addLayout(layout_table)
-    layout.addWidget(btn_constraint)
-    layout.addWidget(self.display_constraints)
-    layout.addWidget(self.reset_constraints)
+    layout.addWidget(self.constraints_box)
     layout.addWidget(self.btn_delete)
 
     self.setLayout(layout)
@@ -614,6 +590,8 @@ class DeleteData(QWidget):
 
   def table_activated(self):
     self.btn_delete.setDisabled(False)
+    table = self.table_dropdown.currentText()
+    self.constraints_box.attributes = list(get_table_attributes(self.cur, table))
 
         
   def add_constraint(self):

@@ -4,6 +4,8 @@ import logging
 from constants import *
 from datetime import datetime as time
 
+import os
+
 logging.basicConfig(level=logging.DEBUG)
 
 class ErrorDialog(QDialog):
@@ -144,16 +146,19 @@ def delete_rows(cur, table, constraints):
 
 def save_to_file(query):
   # ! database being currently used cannot be logged
+  path = os.path.join(os.environ['USERPROFILE'], 'Desktop', 'ViSQL_log.txt')
+  logging.debug(f'{path=}')
   try:
-    with open('C:/Users/User/Desktop/ViSQL_log.txt', 'x') as f:
+    with open(path, 'x') as f:
       f.write(f"""/* METADATA:
-      host: localhost
-      user: root
+      host: {host}
+      user: {user}
       created: {time.now()} */\n\n""")
 
   except FileExistsError:
     pass
 
-  with open('C:/Users/User/Desktop/ViSQL_log.txt', 'a') as f:
+  # with open('C:/Users/Admin/Desktop/ViSQL_log.txt', 'a') as f:
+  with open(path, 'a') as f:
     f.write(f'/* {time.now()} */\n')
     f.write(f'{query};\n\n')

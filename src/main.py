@@ -84,25 +84,25 @@ class Menu:
 
         self.query = QAction(query_menu)
         self.query.setText("Queries")
-        self.query.triggered.connect(self.set_query_page)
+        self.query.triggered.connect(lambda: self.set_main_widget(ManageTables(self.database)))
         self.query.setEnabled(0)
         query_menu.addAction(self.query)
 
         self.create_t = QAction(query_menu)
         self.create_t.setText("Create Table")
-        self.create_t.triggered.connect(self.create_table)
+        self.create_t.triggered.connect(lambda: self.set_main_widget(CreateTable(self.database)))
         self.create_t.setEnabled(0)
         query_menu.addAction(self.create_t)
 
         self.insert = QAction(query_menu)
         self.insert.setText("Insert Rows")
-        self.insert.triggered.connect(self.insert_rows)
+        self.insert.triggered.connect(lambda: self.set_main_widget(InsertData(self.database)))
         self.insert.setEnabled(0)
         query_menu.addAction(self.insert)
 
         self.delete_t = QAction(query_menu)
         self.delete_t.setText("Delete Table")
-        self.delete_t.triggered.connect(self.delete_table)
+        self.delete_t.triggered.connect(lambda: self.set_main_widget(DeleteTable(self.database)))
         self.delete_t.setEnabled(0)
         query_menu.addAction(self.delete_t)
 
@@ -111,32 +111,11 @@ class Menu:
         dialog = CreateDb()
         dialog.exec()
         
-    def set_query_page(self):
-        # ! Very bad solution - find a way to pop the current widget off the stack before adding the next
-        widget_to_add = ManageTables(self.database)
+    def set_main_widget(self, widget_to_add):
         self.view.stacked_widget.addWidget(widget_to_add)
         cnt = self.view.stacked_widget.count()
         self.view.stacked_widget.setCurrentIndex(cnt - 1)
-
-    def create_table(self):
-        widget_to_add = CreateTable(self.database)
-        self.view.stacked_widget.addWidget(widget_to_add)
-        cnt = self.view.stacked_widget.count()
-        self.view.stacked_widget.setCurrentIndex(cnt - 1)
-
-    def insert_rows(self):
-        widget_to_add = InsertData(self.database)
-        self.view.stacked_widget.addWidget(widget_to_add)
-        cnt = self.view.stacked_widget.count()
-        self.view.stacked_widget.setCurrentIndex(cnt - 1)
-
-    def delete_table(self):
-        widget_to_add = DeleteTable(self.database)
-        self.view.stacked_widget.addWidget(widget_to_add)
-        cnt = self.view.stacked_widget.count()
-        self.view.stacked_widget.setCurrentIndex(cnt - 1)
-
-
+       
     def use_db(self, db):
         self.database = db
         self.view.setWindowTitle(f'VISQL: {db.upper()}')

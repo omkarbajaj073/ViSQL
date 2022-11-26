@@ -32,6 +32,7 @@ class ManageTables(QWidget):
     db_action_layout.addWidget(check1)
     db_action_layout.addWidget(check2)
     db_action_layout.addWidget(check3)
+    db_action_layout.addWidget(check4)
 
     # * Select action layout
     self.select_layout = SelectQueries(self.con)

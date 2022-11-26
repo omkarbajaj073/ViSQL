@@ -1,11 +1,7 @@
 1. When you switch between databases, need to remove the widget with the current database and replace it with the widget for the new database.
 
 2. Things left to do: 
-
-  Om: (Finish all layouts. Leave query functionality for later)
-  - Logical where <strong>(Layout Done)</strong>, regex operator <strong>(Layout done)</strong>
-  - Update table - <strong>(Layout Done)</strong>
-  
+  - Show log when db changed
   Query functions left - 
   - Extract table name box
   - Where clause queries - 
@@ -18,15 +14,12 @@
   Ant: 
   - Resizing - fields to match text length
     - Partially accomplished
-  - Data integrity - try except around each query and print the error field.
-    - DONE
-  - Delete table
-    - DONE
   - Delete rows
     - Layout DONE
     - Where clause TBD
     - Query TBD
 
+  - Describe table (if time permits)
   - Natural join (if time permits)
   - Styling (if time permits)
   - Help page to explain basic things like regex and all. (if time permits. Static page)
