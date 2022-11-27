@@ -4,14 +4,13 @@
 
   - displays left - 
     - describe table
-    - constraints
-    - help page
+    - constraints (backlog)
+    - help page (backlog)
 
-  - extract table name box (do we need to?)
-  - Change titles of all opened dialogs
+  - Change titles of all opened dialogs (backlog)
 
-  - Styling (if time permits)
-  - Clean code for queries with decorator (if time permits)
+  - Styling (backlog)
+  
 
 3. Inefficiencies - 
   - Constantly creating new pages instead of popping off the old widget

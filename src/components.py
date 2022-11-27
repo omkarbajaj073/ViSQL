@@ -374,20 +374,22 @@ class SelectQueries(QWidget):
     layout_order.addWidget(self.order_dropdown)
 
     # TODO: Disable button when no text in table
-    btn_query = QPushButton("Run Query")
-    btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query = QPushButton("Run Query")
+    self.btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query.setDisabled(True)
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
     layout.addWidget(self.att_selected)
     layout.addWidget(self.constraints_box)
     layout.addLayout(layout_order)
-    layout.addWidget(btn_query)
+    layout.addWidget(self.btn_query)
 
     self.setLayout(layout)
 
   def table_activated(self):
 
+    self.btn_query.setDisabled(False)
     self.selected_attributes.clear()
     self.att_dropdown.setDisabled(False)
     self.att_dropdown.clear()
@@ -480,17 +482,19 @@ class UpdateQueries(QWidget):
 
     self.constraints_box = ConstraintsBox()
     # TODO: Disable button when no text in table
-    btn_query = QPushButton("Run Query")
-    btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query = QPushButton("Run Query")
+    self.btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query.setDisabled(True)
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
     layout.addWidget(self.constraints_box)
-    layout.addWidget(btn_query)
+    layout.addWidget(self.btn_query)
     self.setLayout(layout)
 
 
   def table_activated(self):
+    self.btn_query.setDisabled(False)
     self.att_dropdown.setDisabled(False)
     self.att_dropdown.clear()
 
@@ -554,19 +558,21 @@ class GroupBy(QWidget):
     layout_group.addWidget(self.group_dropdown)
 
     # TODO: Disable button when no text in table
-    btn_query = QPushButton("Run Query")
-    btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query = QPushButton("Run Query")
+    self.btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query.setDisabled(True)
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
     layout.addWidget(self.constraints_box)
     layout.addLayout(layout_group)
-    layout.addWidget(btn_query)
+    layout.addWidget(self.btn_query)
     self.setLayout(layout)
 
 
   def table_activated(self):
     
+    self.btn_query.setDisabled(False)
     self.agg_function.setDisabled(False)
     self.att_dropdown.setDisabled(False)
     self.att_dropdown.clear()
@@ -580,7 +586,6 @@ class GroupBy(QWidget):
     self.group_dropdown.clear()
 
     self.all_attributes = list(get_table_attributes(self.cur, table))
-    self.group_dropdown.addItem("None")
     self.group_dropdown.addItems(self.all_attributes)
 
     
