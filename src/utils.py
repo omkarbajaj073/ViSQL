@@ -8,6 +8,8 @@ import os
 
 logging.basicConfig(level=logging.DEBUG)
 
+
+
 class ErrorDialog(QDialog):
   def __init__(self, error):
     super().__init__()
@@ -62,8 +64,6 @@ def get_table_attributes(cur, table):
     dialog.exec()
   
   
-  
-
 def get_tables(cur):
   try:
     cur.execute('show tables')
@@ -76,9 +76,13 @@ def get_tables(cur):
     dialog.exec()
 
 
-def get_data(cur, table, attributes, order_by=None):
+def get_data(cur, table, attributes, constraints=None, order_by=None):
   att_str = ', '.join(attributes)
   query = f'''select {att_str} from {table}'''
+  # * FLAG @Ananth Use this to add the constraints to the query. 
+  if constraints:
+    query += f" where {' and '.join(constraints)}"
+    
   if order_by is not None:
     query += f" order by {order_by}"
 
@@ -87,8 +91,25 @@ def get_data(cur, table, attributes, order_by=None):
   try:
     cur.execute(query)
     save_to_file(query)
-
     return cur.fetchall()
+  
+  except Exception as e:
+    dialog = ErrorDialog(str(e))
+    dialog.exec()
+    
+    
+def update_data(cur, table, attribute, value, constraints=None):
+  query = f'''update {table} set {attribute}={value}'''
+  if constraints:
+    query += f" where {' and '.join(constraints)}"
+
+  logging.debug(f'{query=}')
+
+  try:
+    cur.execute(query)
+    save_to_file(query)
+    dialog = SuccessDialog("Updated data")
+    dialog.exec()
   
   except Exception as e:
     dialog = ErrorDialog(str(e))
@@ -115,7 +136,6 @@ def delete_table(cur, name):
   try:
     cur.execute(query)
     save_to_file(query)
-    
     dialog = SuccessDialog("Table deleted!")
     dialog.exec()
   

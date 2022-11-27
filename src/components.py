@@ -112,14 +112,14 @@ class CreateDb(QDialog):
 
 
 class Table(QDialog):
-  def __init__(self, cursor, table, attributes, order_by=None):
+  def __init__(self, cursor, table, attributes, constraints, order_by=None):
     super().__init__()
 
     self.showMaximized()
 
     layout = QVBoxLayout()
 
-    self.results = get_data(cursor, table, attributes, order_by)
+    self.results = get_data(cursor, table, attributes, constraints, order_by)
     x, y = len(self.results), len(self.results[0])
     self.table = QTableWidget(x, y)
     self.table.setHorizontalHeaderLabels(attributes)
@@ -229,16 +229,23 @@ class Constraint(QDialog):
     self.widgets[self.cur_layout].show()
 
   def add_constraint(self):
+    attr = self.combo_boxes[self.cur_layout].currentText()
+    constraint = None
     if self.cur_layout == 0:
-      pass
-    if self.cur_layout == 1:
-      pass
-    if self.cur_layout == 2:
-      pass
-    if self.cur_layout == 3:
-      pass
-    if self.cur_layout == 4:
-      pass
+      constraint = f'{attr} {self.comparators.currentText()} {self.compare_value.text()}'
+    elif self.cur_layout == 1:
+      constraint = f'{attr} in ({self.values.text()})'
+    elif self.cur_layout == 2:
+      constraint = f'{attr} like {self.regex.text()}'
+    elif self.cur_layout == 3:
+      constraint = f'{attr} is null'
+    elif self.cur_layout == 4:
+      constraint = f'{attr} is not null'
+      
+    self.parent.constraints.append(constraint)
+    cur = self.parent.display_constraints.text()
+    new = f'{cur}, {constraint}' if cur else constraint
+    self.parent.display_constraints.setText(new)
     logging.info("This piece of code is reached - add constriant")
     # TODO: Update the parent component
 
@@ -249,7 +256,9 @@ class Constraint(QDialog):
       return
 
     self.selected_values.append(value)
-    self.values.setText("Values: " + ', '.join(self.selected_values))
+    cur = self.values.text()
+    new = f'{cur}, {value}' if cur != 'No values added.' else value
+    self.values.setText(new)
     self.cur_value.setText("")
   
   def clear_values(self):
@@ -266,15 +275,19 @@ class ConstraintsBox(QWidget):
     btn_constraint = QPushButton("Add Constraint")
     btn_constraint.clicked.connect(self.add_constraint)
     
-    self.display_constraints = QWidget()
+    self.display_constraints = QLabel()
     self.reset_constraints = QPushButton("Remove all constraints")
-    self.reset_constraints.clicked.connect(lambda: logging.info("Constraints clicked"))
+    self.reset_constraints.clicked.connect(self.call_reset_constraints)
     
     layout = QVBoxLayout()
     layout.addWidget(btn_constraint)
     layout.addWidget(self.display_constraints)
     layout.addWidget(self.reset_constraints)
     self.setLayout(layout)
+
+  def call_reset_constraints(self):
+    self.display_constraints.setText("")
+    self.constraints.clear()
 
   def add_constraint(self):
     if self.attributes is not None:
@@ -404,13 +417,15 @@ class SelectQueries(QWidget):
   def run_query(self):
     table = self.table_dropdown.currentText()
     attributes = self.selected_attributes
+    
+    # * FLAG @Ananth - just use this to get the constraints. it returns a list of the formated constraints for the query (see utils for next comment)
     constraints = self.constraints_box.constraints
     order_by = self.order_dropdown.currentText()
     if order_by in ['', 'None']:
       order_by = None
 
     if attributes:
-      show_table = Table(self.cur, table, attributes, order_by)
+      show_table = Table(self.cur, table, attributes, constraints, order_by)
       show_table.exec()
     else:
       error_dialog = ErrorDialog("Please make sure the table and at least 1 attribute is selected.")
@@ -456,7 +471,7 @@ class UpdateQueries(QWidget):
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
-    layout.addWidet(self.constraints_box)
+    layout.addWidget(self.constraints_box)
     layout.addWidget(btn_query)
     self.setLayout(layout)
 
@@ -472,13 +487,15 @@ class UpdateQueries(QWidget):
     
   def run_query(self):
     table = self.table_dropdown.currentText()
-    # TODO: Query
+    attribute = self.att_dropdown.currentText()
+    value = self.update_value.text()
+    constraints = self.constraints_box.constraints.copy()
+    update_data(self.cur, table, attribute, value, constraints)
     
   def close(self):
     self.con.close()
     super().close()
     
-
 class GroupBy(QWidget):
   def __init__(self, con):
     super().__init__()

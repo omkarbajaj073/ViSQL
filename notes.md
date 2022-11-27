@@ -2,11 +2,10 @@
 
 2. Things left to do: 
   - Show log when db changed
+  - Display constraints
   Query functions left - 
   - Extract table name box
   - Where clause queries - 
-    - Constraints - (Om)
-    - Update - (Om)
     - Delete rows - (Ant)
     - Aggregate functions - (Om) 
   - Insert into table (Ant)
@@ -22,6 +21,7 @@
   - Describe table (if time permits)
   - Natural join (if time permits)
   - Styling (if time permits)
+  - Clean code for queries with  decorator (if time permits)
   - Help page to explain basic things like regex and all. (if time permits. Static page)
 
 3. Bugs - 

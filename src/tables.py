@@ -136,7 +136,6 @@ class CreateTable(QWidget):
     super().close()
 
 
-
 class DeleteTable(QWidget):
   def __init__(self, db):
     super().__init__()
