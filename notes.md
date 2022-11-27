@@ -18,10 +18,10 @@
     - Where clause TBD
     - Query TBD
 
-  - Describe table (if time permits)
+  - Describe table display
   - Natural join (if time permits)
   - Styling (if time permits)
-  - Clean code for queries with  decorator (if time permits)
+  - Clean code for queries with decorator (if time permits)
   - Help page to explain basic things like regex and all. (if time permits. Static page)
 
 3. Bugs - 

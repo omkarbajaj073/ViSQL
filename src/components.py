@@ -572,6 +572,7 @@ class GroupBy(QWidget):
     group_by = self.group_dropdown.currentText()
     
     group_by_data(self.cur, table, func, attribute, constraints, group_by)
+   
     
 class DeleteData(QWidget):
   def __init__(self, con):
@@ -612,4 +613,50 @@ class DeleteData(QWidget):
   def add_constraint(self):
     dialog = Constraint(self, self.table_dropdown.currentText())
     dialog.exec()
+    
+
+class NaturalJoin(QWidget):
+  def __init__(self, con):
+    super().__init__()
+    self.cur = con.cursor()
+
+    layout = QVBoxLayout()
+    sublayout = QHBoxLayout()
+    
+    tables = get_tables(self.cur)
+    table_title_1 = QLabel("Table 1: ")
+    self.table_dropdown_1 = QComboBox()
+    self.table_dropdown_1.addItems(tables)
+    self.table_dropdown_1.activated.connect(self.table_activated)
+
+    table_title_2 = QLabel("Table 2: ")
+    self.table_dropdown_2 = QComboBox()
+    self.table_dropdown_2.addItems(tables)
+    self.table_dropdown_2.activated.connect(self.table_activated)
+
+    sublayout.addWidget(table_title_1)
+    sublayout.addWidget(self.table_dropdown_1)
+    sublayout.addWidget(table_title_2)
+    sublayout.addWidget(self.table_dropdown_2)
+    
+    btn = QPushButton("Join")
+    btn.clicked.connect(self.run_query)
+    
+    layout.addWidget(QLabel("Select tables to join."))
+    layout.addLayout(sublayout)
+    layout.addWidget(btn)
+    
+  def run_query(self):
+    table_1 = self.table_dropdown_1.currentText()
+    table_2 = self.table_dropdown_2.currentText()
+    
+    if table_1 == table_2:
+      dialog = ErrorDialog("Please select different tables")
+      dialog.exec()
+      return
+    
+    results = natural_join(self.cur, table_1, table_2)
+    logging.debug(f'{results=}')
+    
+
     

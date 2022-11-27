@@ -28,23 +28,28 @@ class ManageTables(QWidget):
     check3.toggled.connect(lambda:self.select_action(check3))
     check4 = QRadioButton('Delete')
     check4.toggled.connect(lambda:self.select_action(check4))
+    check5 = QRadioButton('Natural Join')
+    check5.toggled.connect(lambda:self.select_action(check4))
 
     db_action_layout.addWidget(check1)
     db_action_layout.addWidget(check2)
     db_action_layout.addWidget(check3)
     db_action_layout.addWidget(check4)
+    db_action_layout.addWidget(check5)
 
     # * Select action layout
     self.select_layout = SelectQueries(self.con)
     self.update_layout = UpdateQueries(self.con)
     self.group_layout = GroupBy(self.con)
+    self.delete_layout = DeleteData(self.con)
+    self.join_layout = NaturalJoin(self.con)
 
     self.select_layout.hide()
     self.update_layout.hide()
     self.group_layout.hide()
-
-    self.delete_layout = DeleteData(self.con)
     self.delete_layout.hide()
+    self.join_layout.hide()
+
 
     layout.addLayout(db_action_layout)
     layout.addWidget(self.select_layout)
@@ -63,24 +68,29 @@ class ManageTables(QWidget):
       else:
         self.select_layout.hide()
         
-    if b.text() == "Update":
+    elif b.text() == "Update":
       if b.isChecked():
         self.update_layout.show()
       else:
         self.update_layout.hide()
         
-    if b.text() == "Aggregate Functions":
+    elif b.text() == "Aggregate Functions":
       if b.isChecked():
         self.group_layout.show()
       else:
         self.group_layout.hide()
-
-
+        
     elif b.text() == "Delete":
       if b.isChecked():
         self.delete_layout.show()
       else:
         self.delete_layout.hide()
+        
+    elif b.text() == "Natural Join":
+      if b.isChecked():
+        self.join_layout.show()
+      else:
+        self.join_layout.hide()
 
 
 class CreateTable(QWidget):

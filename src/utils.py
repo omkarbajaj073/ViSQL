@@ -150,7 +150,6 @@ def create_table(cur, name, attributes):
     dialog = ErrorDialog(str(e))
     dialog.exec()
   
-
 def delete_table(cur, name):
   query = f'''drop table {name}'''
   logging.debug(f'{query=}')
@@ -178,12 +177,24 @@ def format_attribute(name, data, not_null, pk, default):
       att += f'\'{default}\''
   return att
     
-
 def insert_data(cur, table, data):
   pass
 
 def delete_rows(cur, table, constraints):
   pass
+
+def natural_join(cur, table1, table2):
+  query = f"select * from {table1} natural join {table2}"
+  logging.debug(f'{query=}')
+  try:
+    cur.execute(query)
+    results = cur.fetchall()
+    return results
+  except Exception as e:
+    dialog = ErrorDialog(str(e))
+    dialog.exec()
+    
+
 
 def save_to_file(query):
   # ! database being currently used cannot be logged
