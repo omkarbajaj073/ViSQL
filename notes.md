@@ -3,7 +3,6 @@
 2. Things left to do: 
 
   - displays left - 
-    - group by
     - describe table
     - constraints
     - help page

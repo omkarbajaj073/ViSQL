@@ -108,21 +108,27 @@ class CreateDb(QDialog):
         self.error.setText("A database with that name already exists.")
     else:
       self.error.setText("Invalid database name!")
-
+       
 
 class Table(QDialog):
-  def __init__(self, cursor, table, attributes=None, constraints=None, order_by=None, join=False, other_table=None):
+  def __init__(self, cursor, table, attributes=None, constraints=None, order_by=None, join=False, other_table=None, group_by=False, func=None, attribute=None, group_by_attr=None):
     super().__init__()
 
     self.showMaximized()
 
     layout = QVBoxLayout()
-    if not join:
+    if not join and not group_by:
       self.results = get_data(cursor, table, attributes, constraints, order_by)
 
-    else:
+    elif join:
       assert(other_table is not None)
       self.results = natural_join(cursor, table, other_table)
+      des = cursor.description
+      # get_attributes
+      attributes = list(map(lambda x: x[0], des))
+      
+    elif group_by:
+      self.results = group_by_data(cursor, table, func, attribute, constraints, group_by_attr)
       des = cursor.description
       # get_attributes
       attributes = list(map(lambda x: x[0], des))
@@ -585,7 +591,9 @@ class GroupBy(QWidget):
     constraints = self.constraints_box.constraints
     group_by = self.group_dropdown.currentText()
     
-    group_by_data(self.cur, table, func, attribute, constraints, group_by)
+    table = Table(self.cur, table, group_by=True, func=func, attribute=attribute, constraints=constraints, group_by_attr=group_by)
+    table.exec()
+    
    
     
 class DeleteData(QWidget):

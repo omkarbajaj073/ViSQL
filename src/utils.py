@@ -119,7 +119,7 @@ def group_by_data(cur, table, func, attribute, constraints, group_attr):
   if func == 'count(*)':
     func = 'count'
     attribute = '*'
-  query = f'''select {func}({attribute}) from {table}'''
+  query = f'''select {group_attr}, {func}({attribute}) from {table}'''
   
   if constraints:
     query += f" where {' and '.join(constraints)}"
