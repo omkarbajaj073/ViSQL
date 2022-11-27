@@ -1,6 +1,4 @@
-1. When you switch between databases, need to remove the widget with the current database and replace it with the widget for the new database.
-
-2. Things left to do: 
+1. Things left to do: 
 
   - displays left - 
     - describe table
@@ -12,7 +10,7 @@
   - Styling (backlog)
   
 
-3. Inefficiencies - 
+2. Inefficiencies - 
   - Constantly creating new pages instead of popping off the old widget
   - ManageTables - transitioning between layouts - new cursors are created. Do the old ones have to be closed or anything?  
   - importing * everywhere
