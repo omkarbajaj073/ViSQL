@@ -577,6 +577,7 @@ class GroupBy(QWidget):
 class DeleteData(QWidget):
   def __init__(self, con):
     super().__init__()
+    self.con = con
     self.cur = con.cursor()
 
     layout = QVBoxLayout()
@@ -609,10 +610,10 @@ class DeleteData(QWidget):
     table = self.table_dropdown.currentText()
     self.constraints_box.attributes = list(get_table_attributes(self.cur, table))
 
-        
-  def add_constraint(self):
-    dialog = Constraint(self, self.table_dropdown.currentText())
-    dialog.exec()
+  def run_delete(self):
+    table = self.table_dropdown.currentText()
+    constraints = self.constraints_box.constraints
+    delete_rows(self.con, table, constraints)
     
 
 class NaturalJoin(QWidget):
@@ -646,6 +647,9 @@ class NaturalJoin(QWidget):
     layout.addLayout(sublayout)
     layout.addWidget(btn)
     
+  def table_activated():
+    pass
+
   def run_query(self):
     table_1 = self.table_dropdown_1.currentText()
     table_2 = self.table_dropdown_2.currentText()

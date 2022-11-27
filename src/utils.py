@@ -176,12 +176,63 @@ def format_attribute(name, data, not_null, pk, default):
     else:
       att += f'\'{default}\''
   return att
-    
-def insert_data(cur, table, data):
-  pass
 
-def delete_rows(cur, table, constraints):
-  pass
+def format_insert_data(data):
+  formatted = []
+  for relation in data:
+    row = []
+    for item in relation:
+      row.append(eval(item))
+
+    formatted.append(tuple(row))
+
+  logging.debug(f'{formatted=}')
+
+  return formatted
+
+    
+def insert_data(con, table, data):
+  cur = con.cursor()
+  query = f'''insert into {table} values'''
+
+  for row in data:
+    query += f" {row},"
+
+  query = query.rstrip(',')
+
+  logging.info(f'{query=}')
+
+  try:
+    cur.execute(query)
+    con.commit()
+    save_to_file(query)
+    dialog = SuccessDialog("Data Inserted!")
+    dialog.exec()
+
+  except Exception as e:
+    dialog = ErrorDialog(str(e))
+    dialog.exec()
+
+def delete_rows(con, table, constraints):
+  cur = con.cursor()
+  query = f'''delete from {table}'''
+
+  if constraints:
+    query += f" where {' and '.join(constraints)}"
+
+  logging.info(f'{query=}')
+
+  try:
+    cur.execute(query)
+    con.commit()
+    save_to_file(query)
+    dialog = SuccessDialog("Deleted data")
+    dialog.exec()
+
+  except Exception as e:
+    dialog = ErrorDialog(str(e))
+    dialog.exec()
+
 
 def natural_join(cur, table1, table2):
   query = f"select * from {table1} natural join {table2}"
@@ -199,7 +250,6 @@ def natural_join(cur, table1, table2):
 def save_to_file(query):
   # ! database being currently used cannot be logged
   path = os.path.join(os.environ['USERPROFILE'], 'Desktop', 'ViSQL_log.txt')
-  logging.debug(f'{path=}')
   try:
     with open(path, 'x') as f:
       f.write(f"""/* METADATA:

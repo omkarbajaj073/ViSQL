@@ -110,7 +110,7 @@ class InsertData(QWidget):
 
   def insert_data(self):
     # ! Add a few checks
-    name = self.name.text()
+    name = self.name.currentText()
     logging.debug(f'{name=}')
 
     # TODO: Handle data types in add data item
@@ -119,8 +119,9 @@ class InsertData(QWidget):
     # * desc table returns a list. second element is a byte string with the datatype.
     # create_table(self.cur, self.name.text(), self.attributes)
     # TODO: Query
-    dialog = SuccessDialog("Data Inserted!")
-    dialog.exec()
+
+    data = format_insert_data(self.data)
+    insert_data(self.con, name, data)
     
     
   def close(self):
