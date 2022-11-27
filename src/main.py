@@ -25,8 +25,6 @@ class Home(QWidget):
     header.setText("VISQL")
     self.layout.addWidget(header)
 
-    # self.layout.addWidget(create)
-
     self.setLayout(self.layout)
 
 
@@ -53,7 +51,6 @@ class Menu:
     def __init__(self, MainWindow):
         super().__init__()
         self.view = MainWindow
-        # self.view.setFixedSize(800, 600)
         self.database = None
         self.view.setWindowTitle(f"VISQL: (NO DATABASE SELECTED)")
 
@@ -109,7 +106,6 @@ class Menu:
         self.desc_t.setEnabled(0)
         query_menu.addAction(self.desc_t)
         
-        # help_menu = self.menuBar.addMenu("Help")
         help_action = QAction(self.menuBar)
         help_action.setText("Help")
         help_action.triggered.connect(self.show_help)

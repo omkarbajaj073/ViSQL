@@ -91,6 +91,12 @@ class ManageTables(QWidget):
         self.join_layout.show()
       else:
         self.join_layout.hide()
+        
+        
+  def close(self):
+    self.con.close()
+    logging.info("Connection closed")
+    super().close()
 
 
 class CreateTable(QWidget):

@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import *
-# import PyQt6.QtCore as QtCore
 
 import mysql.connector as connector
 
@@ -112,27 +111,40 @@ class CreateDb(QDialog):
 
 
 class Table(QDialog):
-  def __init__(self, cursor, table, attributes, constraints, order_by=None):
+  def __init__(self, cursor, table, attributes=None, constraints=None, order_by=None, join=False, other_table=None):
     super().__init__()
 
     self.showMaximized()
 
     layout = QVBoxLayout()
+    if not join:
+      self.results = get_data(cursor, table, attributes, constraints, order_by)
 
-    self.results = get_data(cursor, table, attributes, constraints, order_by)
-    x, y = len(self.results), len(self.results[0])
-    self.table = QTableWidget(x, y)
-    self.table.setHorizontalHeaderLabels(attributes)
+    else:
+      assert(other_table is not None)
+      self.results = natural_join(cursor, table, other_table)
+      # get_attributes
+      attributes = None
+    
+    
+    try:
+      x, y = len(self.results), len(self.results[0])
+      self.table = QTableWidget(x, y)
+      self.table.setHorizontalHeaderLabels(attributes)
 
-    for i in range(x):
-      for j in range(y):
-        cell = QTableWidgetItem(str(self.results[i][j]))
-        # TODO: Make cells read only
-        # cell.setFlags(QtCore.Qt.ItemIsEnabled)
-        self.table.setItem(i, j, cell)
+      for i in range(x):
+        for j in range(y):
+          cell = QTableWidgetItem(str(self.results[i][j]))
+          # TODO: Make cells read only
+          # cell.setFlags(QtCore.Qt.ItemIsEnabled)
+          self.table.setItem(i, j, cell)
 
-    layout.addWidget(self.table)
-    self.setLayout(layout)
+      layout.addWidget(self.table)
+      self.setLayout(layout)
+    except:
+      dialog = ErrorDialog("No data in the table")
+      dialog.exec()
+      self.close()
 
 
 class Constraint(QDialog):
@@ -248,6 +260,7 @@ class Constraint(QDialog):
     self.parent.display_constraints.setText(new)
     logging.info("This piece of code is reached - add constriant")
     # TODO: Update the parent component
+    self.close()
 
   
   def add_value(self):
@@ -589,8 +602,7 @@ class DeleteData(QWidget):
 
     layout_table.addWidget(table_title)
     layout_table.addWidget(self.table_dropdown)
-
-    # * Where functionality
+    
     self.constraints_box = ConstraintsBox()
 
     # TODO: Disable button when no text in table
@@ -628,12 +640,11 @@ class NaturalJoin(QWidget):
     table_title_1 = QLabel("Table 1: ")
     self.table_dropdown_1 = QComboBox()
     self.table_dropdown_1.addItems(tables)
-    self.table_dropdown_1.activated.connect(self.table_activated)
 
     table_title_2 = QLabel("Table 2: ")
     self.table_dropdown_2 = QComboBox()
     self.table_dropdown_2.addItems(tables)
-    self.table_dropdown_2.activated.connect(self.table_activated)
+
 
     sublayout.addWidget(table_title_1)
     sublayout.addWidget(self.table_dropdown_1)
@@ -646,15 +657,12 @@ class NaturalJoin(QWidget):
     layout.addWidget(QLabel("Select tables to join."))
     layout.addLayout(sublayout)
     layout.addWidget(btn)
-    
-  def table_activated():
-    pass
 
   def run_query(self):
     table_1 = self.table_dropdown_1.currentText()
     table_2 = self.table_dropdown_2.currentText()
     
-    if table_1 == table_2:
+    if table_1 == table_2 or table_1 == '' or table_2 == '':
       dialog = ErrorDialog("Please select different tables")
       dialog.exec()
       return
