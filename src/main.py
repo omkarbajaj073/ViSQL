@@ -9,6 +9,7 @@ import logging
 
 from components import CreateDb
 from insert import InsertData
+from help import Help
 from tables import *
 from constants import *
 
@@ -48,8 +49,6 @@ class MainWindow(QMainWindow):
         return QStackedWidget()
 
 
-
-
 class Menu:
     def __init__(self, MainWindow):
         super().__init__()
@@ -70,9 +69,7 @@ class Menu:
         # * Select databases menu
         self.select = QMenu(self.menuBar)
         self.select.setTitle("Select Database")
-
         self.select.aboutToShow.connect(self.display_dbs)
-
         self.open.addMenu(self.select)
 
         self.create = QAction(self.menuBar)
@@ -111,10 +108,21 @@ class Menu:
         self.desc_t.triggered.connect(lambda: self.set_main_widget(DescribeTable(self.database)))
         self.desc_t.setEnabled(0)
         query_menu.addAction(self.desc_t)
+        
+        # help_menu = self.menuBar.addMenu("Help")
+        help_action = QAction(self.menuBar)
+        help_action.setText("Help")
+        help_action.triggered.connect(self.show_help)
+        self.menuBar.addAction(help_action)
+        
 
 
     def show_create(self):
         dialog = CreateDb()
+        dialog.exec()
+        
+    def show_help(self):
+        dialog = Help()
         dialog.exec()
         
     def set_main_widget(self, widget_to_add):
