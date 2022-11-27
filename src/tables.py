@@ -178,4 +178,49 @@ class DeleteTable(QWidget):
     super().close()
 
 
+class DescribeTable(QWidget):
+  def __init__(self, db):
+    super().__init__()
+    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
+    self.cur = self.con.cursor()
+    layout = QVBoxLayout()
 
+    layout_table = QHBoxLayout()
+    table_title = QLabel("Table: ")
+    self.table_dropdown = QComboBox()
+    self.table_dropdown.addItems(get_tables(self.cur))
+    self.table_dropdown.activated.connect(self.table_activated)
+
+    layout_table.addWidget(table_title)
+    layout_table.addWidget(self.table_dropdown)
+
+    self.desc_table_btn = QPushButton("Describe Table")
+    self.desc_table_btn.setDisabled(True)
+    self.desc_table_btn.clicked.connect(self.desc_table)
+    
+    self.table = QWidget()
+    
+
+    layout.addLayout(layout_table)
+    layout.addWidget(self.desc_table_btn)
+    layout.addWidget(self.table)
+
+    self.setLayout(layout)
+
+    
+  def table_activated(self):
+    self.desc_table_btn.setDisabled(False)
+    
+  
+  def desc_table(self):
+    table = self.table_dropdown.currentText()
+    self.cur.execute(f"desc {table}")
+    results = self.cur.fetchall()
+    
+    logging.debug(f"{results=}")
+    # * Sample output - results=[('id', b'int(11)', 'NO', 'PRI', None, ''), ('name', b'varchar(30)', 'NO', '', b'aa', '')] FLAG @Ananth
+    # TODO: Update table
+    
+
+
+    

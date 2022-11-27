@@ -106,6 +106,12 @@ class Menu:
         self.delete_t.setEnabled(0)
         query_menu.addAction(self.delete_t)
 
+        self.desc_t = QAction(query_menu)
+        self.desc_t.setText("Describe Table")
+        self.desc_t.triggered.connect(lambda: self.set_main_widget(DescribeTable(self.database)))
+        self.desc_t.setEnabled(0)
+        query_menu.addAction(self.desc_t)
+
 
     def show_create(self):
         dialog = CreateDb()
@@ -124,6 +130,7 @@ class Menu:
         self.create_t.setEnabled(1)
         self.insert.setEnabled(1)
         self.delete_t.setEnabled(1)
+        self.desc_t.setEnabled(1)
 
 
     def display_dbs(self):
