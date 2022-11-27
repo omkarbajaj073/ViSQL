@@ -114,11 +114,9 @@ class InsertData(QWidget):
     logging.debug(f'{name=}')
 
     # TODO: Handle data types in add data item
-    # TODO: Format and run query - match case sorta syntax to decide quotes.
     # TODO: ComboBox for enum datatype
     # * desc table returns a list. second element is a byte string with the datatype.
     # create_table(self.cur, self.name.text(), self.attributes)
-    # TODO: Query
 
     data = format_insert_data(self.data)
     insert_data(self.con, name, data)

@@ -193,7 +193,7 @@ class DescribeTable(QWidget):
     super().__init__()
     self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
     self.cur = self.con.cursor()
-    layout = QVBoxLayout()
+    self.layout = QVBoxLayout()
 
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
@@ -206,28 +206,52 @@ class DescribeTable(QWidget):
 
     self.desc_table_btn = QPushButton("Describe Table")
     self.desc_table_btn.setDisabled(True)
-    self.desc_table_btn.clicked.connect(self.desc_table)
-    
-    self.table = QWidget()
-    
+    self.desc_table_btn.clicked.connect(self.desc_table)    
 
-    layout.addLayout(layout_table)
-    layout.addWidget(self.desc_table_btn)
-    layout.addWidget(self.table)
+    self.layout.addLayout(layout_table)
+    self.layout.addWidget(self.desc_table_btn)
 
-    self.setLayout(layout)
+    self.setLayout(self.layout)
 
+    self.setMinimumSize(750, 500)
     
   def table_activated(self):
     self.desc_table_btn.setDisabled(False)
     
-  
   def desc_table(self):
-    table = self.table_dropdown.currentText()
-    self.cur.execute(f"desc {table}")
-    results = self.cur.fetchall()
+    table_name = self.table_dropdown.currentText()
     
-    logging.debug(f"{results=}")
+    try:
+      self.table.hide()
+    except:
+      pass
+
+    self.cur.execute(f"desc {table_name}")
+    self.results = self.cur.fetchall()
+
+    headers = list(map(lambda i : i[0], self.cur.description))
+
+    try:
+      x, y = len(self.results), len(self.results[0])
+      self.table = QTableWidget(x, y)
+      self.table.setHorizontalHeaderLabels(headers)
+
+      for i in range(x):
+        for j in range(y):
+          item = self.results[i][j]
+          if type(item) is bytes:
+            cell = QTableWidgetItem(str(item, 'utf-8'))
+          else:
+            cell = QTableWidgetItem(str(item))
+          self.table.setItem(i, j, cell)
+
+      self.layout.addWidget(self.table)
+      
+    except Exception as e:
+      dialog = ErrorDialog(str(e))
+      dialog.exec()
+      
+    logging.debug(f"{self.results=}")
     # * Sample output - results=[('id', b'int(11)', 'NO', 'PRI', None, ''), ('name', b'varchar(30)', 'NO', '', b'aa', '')] FLAG @Ananth
     # TODO: Update table
     
