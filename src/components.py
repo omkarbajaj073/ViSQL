@@ -296,8 +296,7 @@ class ConstraintsBox(QWidget):
     else:
       dialog = ErrorDialog("Please select a table")
       dialog.exec()
-
-    
+  
 
 class SelectQueries(QWidget):
   def __init__(self, con):
@@ -367,7 +366,6 @@ class SelectQueries(QWidget):
 
     self.setLayout(layout)
 
-
   def table_activated(self):
 
     self.selected_attributes.clear()
@@ -431,10 +429,6 @@ class SelectQueries(QWidget):
       error_dialog = ErrorDialog("Please make sure the table and at least 1 attribute is selected.")
       error_dialog.exec()
 
-  # def close(self):
-  #   self.con.close()
-  #   super().close()
-
 
 class UpdateQueries(QWidget):
   def __init__(self, con):
@@ -495,6 +489,7 @@ class UpdateQueries(QWidget):
   def close(self):
     self.con.close()
     super().close()
+
     
 class GroupBy(QWidget):
   def __init__(self, con):
@@ -516,6 +511,8 @@ class GroupBy(QWidget):
     att_title = QLabel("Function: ")
 
     self.agg_function = QComboBox()
+    functions = ['max', 'min', 'avg', 'sum', 'count', 'count(*)']
+    self.agg_function.addItems(functions)
     self.agg_function.setDisabled(True)
     
     self.att_dropdown = QComboBox()
@@ -549,8 +546,8 @@ class GroupBy(QWidget):
 
 
   def table_activated(self):
-
-    self.selected_attributes.clear()
+    
+    self.agg_function.setDisabled(False)
     self.att_dropdown.setDisabled(False)
     self.att_dropdown.clear()
 
@@ -566,14 +563,15 @@ class GroupBy(QWidget):
     self.group_dropdown.addItem("None")
     self.group_dropdown.addItems(self.all_attributes)
 
-  def add_constraint(self):
-    dialog = Constraint(self, self.table_dropdown.currentText())
-    dialog.exec()
     
   def run_query(self):
     table = self.table_dropdown.currentText()
-    attributes = self.selected_attributes
-    order_by = self.group_dropdown.currentText()
+    attribute = self.att_dropdown.currentText()
+    func = self.agg_function.currentText()
+    constraints = self.constraints_box.constraints
+    group_by = self.group_dropdown.currentText()
+    
+    group_by_data(self.cur, table, func, attribute, constraints, group_by)
     
 class DeleteData(QWidget):
   def __init__(self, con):

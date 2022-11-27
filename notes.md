@@ -3,11 +3,11 @@
 2. Things left to do: 
   - Show log when db changed
   - Display constraints
+  - Display group by result in table
   Query functions left - 
   - Extract table name box
   - Where clause queries - 
     - Delete rows - (Ant)
-    - Aggregate functions - (Om) 
   - Insert into table (Ant)
   
   Ant: 

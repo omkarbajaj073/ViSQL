@@ -119,6 +119,7 @@ class Menu:
     def use_db(self, db):
         self.database = db
         self.view.setWindowTitle(f'VISQL: {db.upper()}')
+        save_to_file(f"\n INFO: CURRENT DATABASE: {db}\n")
         self.query.setEnabled(1)
         self.create_t.setEnabled(1)
         self.insert.setEnabled(1)

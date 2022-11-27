@@ -110,7 +110,28 @@ def update_data(cur, table, attribute, value, constraints=None):
     save_to_file(query)
     dialog = SuccessDialog("Updated data")
     dialog.exec()
+  except Exception as e:
+    dialog = ErrorDialog(str(e))
+    dialog.exec()
+
+
+def group_by_data(cur, table, func, attribute, constraints, group_attr):
+  if func == 'count(*)':
+    func = 'count'
+    attribute = '*'
+  query = f'''select {func}({attribute}) from {table}'''
   
+  if constraints:
+    query += f" where {' and '.join(constraints)}"
+    
+  query += f" group by {group_attr}"
+
+  logging.debug(f'{query=}')
+
+  try:
+    cur.execute(query)
+    save_to_file(query)
+    return cur.fetchall()
   except Exception as e:
     dialog = ErrorDialog(str(e))
     dialog.exec()
