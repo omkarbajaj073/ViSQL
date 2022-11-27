@@ -5,7 +5,6 @@
   - displays left - 
     - group by
     - describe table
-    - natural join
     - constraints
     - help page
 

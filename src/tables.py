@@ -29,7 +29,7 @@ class ManageTables(QWidget):
     check4 = QRadioButton('Delete')
     check4.toggled.connect(lambda:self.select_action(check4))
     check5 = QRadioButton('Natural Join')
-    check5.toggled.connect(lambda:self.select_action(check4))
+    check5.toggled.connect(lambda:self.select_action(check5))
 
     db_action_layout.addWidget(check1)
     db_action_layout.addWidget(check2)
@@ -56,6 +56,7 @@ class ManageTables(QWidget):
     layout.addWidget(self.update_layout)
     layout.addWidget(self.group_layout)
     layout.addWidget(self.delete_layout)
+    layout.addWidget(self.join_layout)
 
     self.setLayout(layout)
     self.setMinimumSize(750, 500)

@@ -123,8 +123,9 @@ class Table(QDialog):
     else:
       assert(other_table is not None)
       self.results = natural_join(cursor, table, other_table)
+      des = cursor.description
       # get_attributes
-      attributes = None
+      attributes = list(map(lambda x: x[0], des))
     
     
     try:
@@ -636,7 +637,8 @@ class NaturalJoin(QWidget):
     layout = QVBoxLayout()
     sublayout = QHBoxLayout()
     
-    tables = get_tables(self.cur)
+    tables = list(get_tables(self.cur))
+    
     table_title_1 = QLabel("Table 1: ")
     self.table_dropdown_1 = QComboBox()
     self.table_dropdown_1.addItems(tables)
@@ -657,6 +659,8 @@ class NaturalJoin(QWidget):
     layout.addWidget(QLabel("Select tables to join."))
     layout.addLayout(sublayout)
     layout.addWidget(btn)
+    
+    self.setLayout(layout)
 
   def run_query(self):
     table_1 = self.table_dropdown_1.currentText()
@@ -667,8 +671,8 @@ class NaturalJoin(QWidget):
       dialog.exec()
       return
     
-    results = natural_join(self.cur, table_1, table_2)
-    logging.debug(f'{results=}')
+    show_table = Table(self.cur, table_1, other_table=table_2, join=True)
+    show_table.exec()
     
 
     
