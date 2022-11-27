@@ -1,7 +1,6 @@
 1. Things left to do: 
 
   - displays left - 
-    - describe table
     - constraints (backlog)
     - help page (backlog)
 
