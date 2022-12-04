@@ -170,11 +170,7 @@ def format_attribute(name, data, not_null, pk, default):
   if pk:
     att += 'primary key '
   if default:
-    att += 'default '
-    if data == 'Integer':
-      att += f'{default}'
-    else:
-      att += f'\'{default}\''
+    att += f'default {default}'
   return att
 
 def format_insert_data(data):
