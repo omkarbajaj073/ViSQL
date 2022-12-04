@@ -5,6 +5,8 @@ import logging
 from utils import *
 from constants import *
 
+from styles import queryStyles
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -60,6 +62,7 @@ class ManageTables(QWidget):
 
     self.setLayout(layout)
     self.setMinimumSize(750, 500)
+    self.setStyleSheet(queryStyles) # > FLAG @Ananth. Using stylesheets.
 
 
   def select_action(self, b):

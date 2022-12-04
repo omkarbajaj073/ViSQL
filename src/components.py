@@ -158,7 +158,7 @@ class Constraint(QDialog):
   def __init__(self, parent, attributes):
     super().__init__()
     self.parent = parent
-    self.constraints = ['Logical', 'List', 'Regex', 'Is Null', "Is Not Null"]
+    self.constraints = ['Relational', 'List', 'Regex', 'Is Null', "Is Not Null"]
     
     self.select_constraint = QComboBox()
     self.select_constraint.addItems(self.constraints)
@@ -227,10 +227,10 @@ class Constraint(QDialog):
 
     self.cur_layout = None
 
-    self.btn = QPushButton("Add constraint")
+    self.btn = QPushButton("Add condition")
     self.btn.clicked.connect(self.add_constraint)
 
-    self.layout.addWidget(QLabel("Select constraint type:"))
+    self.layout.addWidget(QLabel("Select condition type:"))
     self.layout.addWidget(self.select_constraint)
     for widget in self.widgets:
       self.layout.addWidget(widget)
@@ -292,11 +292,11 @@ class ConstraintsBox(QWidget):
     self.constraints = []
     self.attributes = None
     
-    btn_constraint = QPushButton("Add Constraint")
+    btn_constraint = QPushButton("Add Condition")
     btn_constraint.clicked.connect(self.add_constraint)
     
     self.display_constraints = QLabel()
-    self.reset_constraints = QPushButton("Remove all constraints")
+    self.reset_constraints = QPushButton("Remove all conditions")
     self.reset_constraints.clicked.connect(self.call_reset_constraints)
     
     layout = QVBoxLayout()

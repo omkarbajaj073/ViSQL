@@ -12,6 +12,7 @@ from insert import InsertData
 from help import Help
 from tables import *
 from constants import *
+from styles import styles
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -152,6 +153,7 @@ def main():
     widget1 = Home()
     w = MainWindow([widget1, QWidget()], host=host, user=user, password=password)
     m = Menu(w)
+    w.setStyleSheet(styles)
     w.show()
     app.exec()
 
