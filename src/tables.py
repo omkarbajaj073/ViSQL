@@ -147,7 +147,7 @@ class CreateTable(QWidget):
     name = self.name.text()
     logging.debug(f'{name=}')
     create_table(self.cur, self.name.text(), self.attributes)
-    dialog = SuccessDialog("Table created!")
+    dialog = MessageDialog("Table created!")
     dialog.exec()
     
     
@@ -258,7 +258,7 @@ class DescribeTable(QWidget):
       self.layout.addWidget(self.table)
       
     except Exception as e:
-      dialog = ErrorDialog(str(e))
+      dialog = MessageDialog(str(e))
       dialog.exec()
       
     logging.debug(f"{self.results=}")

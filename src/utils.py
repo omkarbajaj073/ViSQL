@@ -1,22 +1,13 @@
+import os
+from datetime import datetime as time
 from PyQt6.QtWidgets import *
 import mysql.connector as connector
-import logging
+
 from constants import *
-from datetime import datetime as time
 
-import os
 
-logging.basicConfig(level=logging.DEBUG)
-  
-
-class ErrorDialog(QDialog):
-  def __init__(self, error):
-    super().__init__()
-    layout = QVBoxLayout()
-    layout.addWidget(QLabel(error))
-    self.setLayout(layout)
-    
-class SuccessDialog(QDialog):
+class MessageDialog(QDialog):
+  '''Dialog box for messages indicating the success or failure of processes'''
   def __init__(self, msg):
     super().__init__()
     layout = QVBoxLayout()
@@ -25,20 +16,22 @@ class SuccessDialog(QDialog):
 
 
 def get_databases():
+  '''Get all databases on the host and user (see constants.py)'''
   try:
     con = connector.connect(host=host, user=user, password=password)
     cur = con.cursor()
     cur.execute('show databases')
     dbs = cur.fetchall()
-    dbs = map(lambda i: i[0], dbs)
+    dbs = map(lambda i: i[0], dbs) # Extract the datbase name
     return dbs
   
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
 
 def create_database(name):
+  '''Create database on given connection'''
   try:
     con = connector.connect(host=host, user=user, password=password)
     cur = con.cursor()
@@ -48,121 +41,126 @@ def create_database(name):
     save_to_file(query)
 
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
+
 def get_table_attributes(cur, table):
+  '''Get attributes of a given table'''
   try:
     cur.execute(f'show columns from {table}')
     cols = cur.fetchall()
-    cols = list(map(lambda i: i[0], cols))
+    cols = list(map(lambda i: i[0], cols)) # Extract the attribute name
     return cols
   
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
-  
-  
+
+   
 def get_tables(cur):
+  '''Get tables in a given database (cursor must be from connection to that db)'''
   try:
     cur.execute('show tables')
     tables = cur.fetchall()
-    tables = map(lambda i: i[0], tables)
+    tables = map(lambda i: i[0], tables) # Extract the table name
     return tables
   
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
 
 def get_data(cur, table, attributes, constraints=None, order_by=None):
-  att_str = ', '.join(attributes)
-  query = f'''select {att_str} from {table}'''
-  # * FLAG @Ananth Use this to add the constraints to the query. 
-  if constraints:
+  '''Get data from the table'''
+  
+  att_str = ', '.join(attributes) # Format attributes
+  query = f'''select {att_str} from {table}''' # Initialize query
+  
+  if constraints: # If conditions exist, add a where clause
     query += f" where {' and '.join(constraints)}"
     
-  if order_by is not None:
+  if order_by is not None: # Add order by clause if necessary
     query += f" order by {order_by}"
-
-  logging.debug(f'{query=}')
 
   try:
     cur.execute(query)
     save_to_file(query)
-    return cur.fetchall()
+    return cur.fetchall() # Return result of the query
   
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
     
     
 def update_data(cur, table, attribute, value, constraints=None):
-  query = f'''update {table} set {attribute}={value}'''
-  if constraints:
+  '''Update data in a table'''
+  
+  query = f'''update {table} set {attribute}={value}''' # Initialise basic query structure
+  if constraints: # If conditions exist, add where clause
     query += f" where {' and '.join(constraints)}"
-
-  logging.debug(f'{query=}')
 
   try:
     cur.execute(query)
     save_to_file(query)
-    dialog = SuccessDialog("Updated data")
+    dialog = MessageDialog("Updated data")
     dialog.exec()
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
 
 def group_by_data(cur, table, func, attribute, constraints, group_attr):
-  if func == 'count(*)':
+  '''Aggregate function queries'''
+  
+  if func == 'count(*)': # Format the query according to the function
     func = 'count'
     attribute = '*'
   query = f'''select {group_attr}, {func}({attribute}) from {table}'''
   
-  if constraints:
+  if constraints: # If conditions exist, add where clause
     query += f" where {' and '.join(constraints)}"
     
-  query += f" group by {group_attr}"
-
-  logging.debug(f'{query=}')
-
+  query += f" group by {group_attr}" # Group by clause
+  
   try:
     cur.execute(query)
     save_to_file(query)
     return cur.fetchall()
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
 
 def create_table(cur, name, attributes):
-  query = f'''create table {name} ({','.join(attributes)})'''
-  query = query.strip()
-  logging.debug(f'{query=}')
-
+  '''Create table from attributes'''
+  
+  query = f'''create table {name} ({','.join(attributes)})''' # format basic query string
   try:
     cur.execute(query)
     save_to_file(query)
   
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
+
   
 def delete_table(cur, name):
+  '''Delete table in database'''
   query = f'''drop table {name}'''
-  logging.debug(f'{query=}')
   try:
     cur.execute(query)
     save_to_file(query)
-    dialog = SuccessDialog("Table deleted!")
+    dialog = MessageDialog("Table deleted!")
     dialog.exec()
   
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
+
 def format_attribute(name, data, not_null, pk, default):
+  '''Format attribute constraints into string format before building query'''
   att = f'{name} {data} '
   if not_null:
     att += 'not null '
@@ -172,7 +170,9 @@ def format_attribute(name, data, not_null, pk, default):
     att += f'default {default}'
   return att
 
+
 def format_insert_data(data):
+  '''Format attribute constraints into string format before building query'''
   formatted = []
   for relation in data:
     row = []
@@ -180,13 +180,11 @@ def format_insert_data(data):
       row.append(eval(item))
 
     formatted.append(tuple(row))
-
-  logging.debug(f'{formatted=}')
-
   return formatted
 
-    
+
 def insert_data(con, table, data):
+  '''Run insertion of data into table'''
   cur = con.cursor()
   query = f'''insert into {table} values'''
 
@@ -195,57 +193,56 @@ def insert_data(con, table, data):
 
   query = query.rstrip(',')
 
-  logging.info(f'{query=}')
-
   try:
     cur.execute(query)
     con.commit()
     save_to_file(query)
-    dialog = SuccessDialog("Data Inserted!")
+    dialog = MessageDialog("Data Inserted!")
     dialog.exec()
 
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
+
 def delete_rows(con, table, constraints):
+  '''Delete rows in tables'''
   cur = con.cursor()
   query = f'''delete from {table}'''
 
-  if constraints:
+  if constraints: # If condition exist, add where clause
     query += f" where {' and '.join(constraints)}"
-
-  logging.info(f'{query=}')
 
   try:
     cur.execute(query)
     con.commit()
     save_to_file(query)
-    dialog = SuccessDialog("Deleted data")
+    dialog = MessageDialog("Deleted data")
     dialog.exec()
 
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
 
 
 def natural_join(cur, table1, table2):
+  '''Natural join query'''
   query = f"select * from {table1} natural join {table2}"
-  logging.debug(f'{query=}')
   try:
     cur.execute(query)
     results = cur.fetchall()
     return results
   except Exception as e:
-    dialog = ErrorDialog(str(e))
+    dialog = MessageDialog(str(e))
     dialog.exec()
     
 
-
 def save_to_file(query):
-  # ! database being currently used cannot be logged
+  '''Save all commands run in a given session to a file'''
+  # Path of the file - desktop of the default user in the current system
   path = os.path.join(os.environ['USERPROFILE'], 'Desktop', 'ViSQL_log.txt')
   try:
+    # If first time using the application, log the host, user, and time of creation of the session
     with open(path, 'x') as f:
       f.write(f"""/* METADATA:
       host: {host}
@@ -254,8 +251,8 @@ def save_to_file(query):
 
   except FileExistsError:
     pass
-
-  # with open('C:/Users/Admin/Desktop/ViSQL_log.txt', 'a') as f:
+  
+  # Logging all queries
   with open(path, 'a') as f:
     f.write(f'/* {time.now()} */\n')
     f.write(f'{query};\n\n')

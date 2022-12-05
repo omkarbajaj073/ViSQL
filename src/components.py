@@ -7,37 +7,47 @@ from styles import *
 
 
 class CreateAttribute(QDialog):
+  '''Dialog to create attribute while creating a new table'''
   def __init__(self, parent):
     super().__init__()
     layout = QVBoxLayout()
-    # TODO: foreign key, check, unique
-    num_fields = 5
-    layouts = [QHBoxLayout() for i in range(num_fields)]
-    labels = ['Name of Attribute', 'Data Type', 'Not Null', 'Primary Key', 'Default Value']
 
+    num_fields = 5
+
+    layouts = [QHBoxLayout() for i in range(num_fields)]
+    labels = ['Name of Attribute', 'Data Type', 'Not Null', 'Primary Key', 'Default Value'] 
+
+    # Adding titles to all sublayouts
     for i in range(num_fields):
       layouts[i].addWidget(QLabel(labels[i]))
 
+    # Layout for attribute name
     self.name = QLineEdit()
     layouts[0].addWidget(self.name)
 
+    # Layout for data type
     self.type = QComboBox()
-    types = ['Integer', 'Varchar(30)', 'Date'] # TODO
+    types = ['Integer', 'Varchar(30)', 'Varchar(500)', 'Date'] # TODO
     self.type.addItems(types)
     layouts[1].addWidget(self.type)
     
+    # Layout for not null condition
     self.not_null = QCheckBox("Yes")
     layouts[2].addWidget(self.not_null)
     
+    # Layout for primary key condition
     self.primary_key = QCheckBox("Yes")
     layouts[3].addWidget(self.primary_key)
     
+    # Layout for default value
     self.default = QLineEdit()
     layouts[4].addWidget(self.default)
 
+    # Add attribute
     self.set_att = QPushButton("Confirm")
     self.set_att.clicked.connect(self.set_attribute)
 
+    # Add all attributes to main layout
     for sublayout in layouts:
       layout.addLayout(sublayout)
     
@@ -48,8 +58,8 @@ class CreateAttribute(QDialog):
 
 
   def set_attribute(self):
-    # ! Add checks to make sure things work
     
+    # Formatting display for main window for new attribute
     params = [self.name.text(), self.type.currentText(), self.not_null.isChecked(), self.primary_key.isChecked(), self.default.text()]
     self.parent.attributes.append(format_attribute(*params))
 
@@ -57,38 +67,35 @@ class CreateAttribute(QDialog):
     params[3] = 'Yes' if params[3] else 'No'
     params[4] = params[4] if params[4] else 'None'
 
-    currentRowCount = self.parent.table.rowCount()
-    logging.debug(f'{currentRowCount=}')
-    self.parent.table.insertRow(currentRowCount)   
 
+    # Update main window to display the new attribute
+    currentRowCount = self.parent.table.rowCount()
+    self.parent.table.insertRow(currentRowCount)   
     for i, param in enumerate(params):
-      logging.debug("param: " + param)
       self.parent.table.setItem(currentRowCount, i, QTableWidgetItem(param))
 
-    logging.debug(f'{self.parent.attributes=}')
     self.close()  
 
 
 class CreateDb(QDialog):
+  '''Dialog to create a new database'''
   def __init__(self):
     super().__init__()
 
-    # ! Error label appears next to main layout
     mainlayout = QVBoxLayout()
     sublayout = QHBoxLayout()
 
     self.label = QLabel("Enter DB name: ")
     self.edit = QLineEdit()
     self.push = QPushButton("Create")
-    self.push.clicked.connect(self.create_db)
+    self.push.clicked.connect(self.create_db) # run the database creation query
 
-    # TODO: Implement error field
+    # Error field in case the name of the database is invalid
     self.error = QLabel()
 
     sublayout.addWidget(self.label)
     sublayout.addWidget(self.edit)
     sublayout.addWidget(self.push)
-    # sublayout.addWidget(self.error)
 
     mainlayout.addLayout(sublayout)
     mainlayout.addWidget(self.error)
@@ -96,8 +103,9 @@ class CreateDb(QDialog):
     self.setLayout(mainlayout)
 
   def create_db(self):
-    name = self.edit.text()
+    name = self.edit.text() # Get database name
 
+    # Check if name is a valid attribute name (follows the same rules as python identifiers)
     if name.isidentifier():
       try:
         create_database(name)
@@ -112,30 +120,28 @@ class CreateDb(QDialog):
        
 
 class Table(QDialog):
-  def __init__(self, cursor, table, attributes=None, constraints=None, order_by=None, join=False, other_table=None, group_by=False, func=None, attribute=None, group_by_attr=None):
+  '''Dialog with table to display results of all queries'''
+  def __init__(self, cursor, table, attributes=None, conditions=None, order_by=None, join=False, other_table=None, group_by=False, func=None, attribute=None, group_by_attr=None):
     super().__init__()
-
     self.showMaximized()
-
+    
     layout = QVBoxLayout()
     if not join and not group_by:
-      self.results = get_data(cursor, table, attributes, constraints, order_by)
-
+      # Normal select query
+      self.results = get_data(cursor, table, attributes, conditions, order_by)
     elif join:
-      assert(other_table is not None)
+      # Natural join query
       self.results = natural_join(cursor, table, other_table)
-      des = cursor.description
-      # get_attributes
-      attributes = list(map(lambda x: x[0], des))
-      
     elif group_by:
-      self.results = group_by_data(cursor, table, func, attribute, constraints, group_by_attr)
-      des = cursor.description
-      # get_attributes
-      attributes = list(map(lambda x: x[0], des))
+      # Group by aggregate function query
+      self.results = group_by_data(cursor, table, func, attribute, conditions, group_by_attr)
     
+    # Get attribute names for table headers
+    des = cursor.description
+    attributes = list(map(lambda x: x[0], des))
     
     try:
+      # Populate table with results
       x, y = len(self.results), len(self.results[0])
       self.table = QTableWidget(x, y)
       self.table.setHorizontalHeaderLabels(attributes)
@@ -143,40 +149,42 @@ class Table(QDialog):
       for i in range(x):
         for j in range(y):
           cell = QTableWidgetItem(str(self.results[i][j]))
-          # TODO: Make cells read only
-          # cell.setFlags(QtCore.Qt.ItemIsEnabled)
           self.table.setItem(i, j, cell)
 
       layout.addWidget(self.table)
       self.setLayout(layout)
     except:
-      dialog = ErrorDialog("No data in the table")
+      dialog = MessageDialog("No data in the table")
       dialog.exec()
       self.close()
 
 
-class Constraint(QDialog):
+class Condition(QDialog):
   def __init__(self, parent, attributes):
     super().__init__()
     self.parent = parent
-    self.constraints = ['Relational', 'List', 'Regex', 'Is Null', "Is Not Null"]
     
-    self.select_constraint = QComboBox()
-    self.select_constraint.addItems(self.constraints)
-    self.select_constraint.activated.connect(self.constraint_selected)
+    self.conditions = ['Relational', 'List', 'Regex', 'Is Null', "Is Not Null"]
+    
+    # Choose the type of condition to add
+    self.select_condition = QComboBox()
+    self.select_condition.addItems(self.conditions)
+    # Toggle between different types of conditions
+    self.select_condition.activated.connect(self.condition_selected)
 
+    # Attributes of table for current query
     atts = attributes
     self.layout = QVBoxLayout()
 
+    # Attribute dropdowns
     self.combo_boxes = [QComboBox() for _ in range(5)]
     for box in self.combo_boxes:
       box.addItems(atts)
 
     self.widgets = [QWidget() for _ in range(5)]
-    
     layouts = [QHBoxLayout() for _ in range(5)]
     
-    # * Layout for comparisons
+    # Layout for comparisons
     self.comparators = QComboBox()
     compare = ['=', '!=', '<', '>', '<=', '>=']
     self.comparators.addItems(compare)
@@ -187,14 +195,12 @@ class Constraint(QDialog):
     layouts[0].addWidget(self.compare_value)
     
     
-    # * Layouts for is null, is not null
+    # Layouts for is null, is not null
     layouts[3].addWidget(self.combo_boxes[3])
     layouts[4].addWidget(self.combo_boxes[4])
     
-    # * layout for in
-
+    # Layout for in
     layouts[1] = QVBoxLayout()
-
     sublayout = QHBoxLayout()
     sublayout.addWidget(QLabel("Enter Value: "))
     self.cur_value = QLineEdit()
@@ -215,13 +221,13 @@ class Constraint(QDialog):
     layouts[1].addWidget(self.clear_values_btn)
     
     
-    # * layout for regex
+    # Layout for regex
     layouts[2].addWidget(self.combo_boxes[2])
     self.regex = QLineEdit()
     layouts[2].addWidget(QLabel("Regex: "))
     layouts[2].addWidget(self.regex)
     
-
+    # Add all sublayouts to subwidgets
     for i in range(5):
       self.widgets[i].setLayout(layouts[i])
       self.widgets[i].hide()
@@ -229,49 +235,52 @@ class Constraint(QDialog):
     self.cur_layout = None
 
     self.btn = QPushButton("Add condition")
-    self.btn.clicked.connect(self.add_constraint)
+    self.btn.clicked.connect(self.add_condition)
 
     self.layout.addWidget(QLabel("Select condition type:"))
-    self.layout.addWidget(self.select_constraint)
+    self.layout.addWidget(self.select_condition)
+    
+    # Add all subwidets to main layout
     for widget in self.widgets:
       self.layout.addWidget(widget)
 
     self.layout.addWidget(self.btn)
-
     self.setLayout(self.layout)
 
-
-  def constraint_selected(self):
+  def condition_selected(self):
+    # Toggle between layouts for various types of conditions
     if self.cur_layout is not None:
       self.widgets[self.cur_layout].hide()
-    self.cur_layout = self.select_constraint.currentIndex()
+    self.cur_layout = self.select_condition.currentIndex()
 
     self.widgets[self.cur_layout].show()
 
-  def add_constraint(self):
+  def add_condition(self):
     attr = self.combo_boxes[self.cur_layout].currentText()
-    constraint = None
+    condition = None
+    
+    # Format condition for query
     if self.cur_layout == 0:
-      constraint = f'{attr} {self.comparators.currentText()} {self.compare_value.text()}'
+      condition = f'{attr} {self.comparators.currentText()} {self.compare_value.text()}'
     elif self.cur_layout == 1:
-      constraint = f'{attr} in ({self.values.text()})'
+      condition = f'{attr} in ({self.values.text()})'
     elif self.cur_layout == 2:
-      constraint = f'{attr} like {self.regex.text()}'
+      condition = f'{attr} like {self.regex.text()}'
     elif self.cur_layout == 3:
-      constraint = f'{attr} is null'
+      condition = f'{attr} is null'
     elif self.cur_layout == 4:
-      constraint = f'{attr} is not null'
-      
-    self.parent.constraints.append(constraint)
-    cur = self.parent.display_constraints.text()
-    new = f'{cur}, {constraint}' if cur else constraint
-    self.parent.display_constraints.setText(new)
-    logging.info("This piece of code is reached - add constriant")
-    # TODO: Update the parent component
-    self.close()
+      condition = f'{attr} is not null'
+    
+    # Update parent component
+    self.parent.conditions.append(condition)
+    cur = self.parent.display_conditions.text()
+    new = f'{cur}, {condition}' if cur else condition
+    self.parent.display_conditions.setText(new)
 
+    self.close()
   
   def add_value(self):
+    # Utility function for in operator
     value = self.cur_value.text()
     if value in self.selected_values:
       return
@@ -283,52 +292,58 @@ class Constraint(QDialog):
     self.cur_value.setText("")
   
   def clear_values(self):
+    # Utility function for in operator
     self.selected_values.clear()
     self.values.setText('No values added.') 
     
 
-class ConstraintsBox(QWidget):
+class ConditionsBox(QWidget):
+  '''Component to add conditions to query'''
   def __init__(self):
     super().__init__()
-    self.constraints = []
+    self.conditions = []
     self.attributes = None
     
-    btn_constraint = QPushButton("Add Condition")
-    btn_constraint.clicked.connect(self.add_constraint)
+    btn_condition = QPushButton("Add Condition")
+    btn_condition.clicked.connect(self.add_condition)
     
-    self.display_constraints = QLabel()
-    self.reset_constraints = QPushButton("Remove all conditions")
-    self.reset_constraints.clicked.connect(self.call_reset_constraints)
+    self.display_conditions = QLabel()
+    self.reset_conditions = QPushButton("Remove all conditions")
+    self.reset_conditions.clicked.connect(self.call_reset_conditions)
     
     layout = QVBoxLayout()
-    layout.addWidget(btn_constraint)
-    layout.addWidget(self.display_constraints)
-    layout.addWidget(self.reset_constraints)
+    layout.addWidget(btn_condition)
+    layout.addWidget(self.display_conditions)
+    layout.addWidget(self.reset_conditions)
     self.setLayout(layout)
 
-  def call_reset_constraints(self):
-    self.display_constraints.setText("")
-    self.constraints.clear()
+  def call_reset_conditions(self):
+    self.display_conditions.setText("")
+    self.conditions.clear()
 
-  def add_constraint(self):
+  def add_condition(self):
     if self.attributes is not None:
-      dialog = Constraint(self, self.attributes)
+      dialog = Condition(self, self.attributes)
       dialog.exec()
     else:
-      dialog = ErrorDialog("Please select a table")
+      dialog = MessageDialog("Please select a table")
       dialog.exec()
   
 
 class SelectQueries(QWidget):
+  '''Create select query to get data from tables'''
   def __init__(self, con):
     super().__init__()
     self.cur = con.cursor()
 
     layout = QVBoxLayout()
+    
+    # Sublayout to select table
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
     self.table_dropdown = QComboBox()
     self.table_dropdown.addItems(get_tables(self.cur))
+    # Allow selection of attributes only when table is selected
     self.table_dropdown.activated.connect(self.table_activated)
 
     self.all_attributes = []
@@ -337,6 +352,7 @@ class SelectQueries(QWidget):
     layout_table.addWidget(table_title)
     layout_table.addWidget(self.table_dropdown)
 
+    # Sublayout to select attributes
     layout_att = QHBoxLayout()
     att_title = QLabel("Attributes: ")
 
@@ -355,7 +371,7 @@ class SelectQueries(QWidget):
     self.att_addAll = QPushButton("Add all attributes")
     self.att_addAll.clicked.connect(lambda: self.add_all_attributes())
     
-    self.att_selected = QLabel("No attribtues selected.")
+    self.att_selected = QLabel("No attribtues selected.") # Display selected attributes
 
     layout_att.addWidget(att_title)
     layout_att.addWidget(self.att_dropdown)
@@ -365,8 +381,10 @@ class SelectQueries(QWidget):
     layout_att.addWidget(self.att_addAll)
 
 
-    # * Where functionality
-    self.constraints_box = ConstraintsBox()
+    # Where clause functionality
+    self.conditions_box = ConditionsBox()
+    
+    # Sublayout for order by clause
     layout_order = QHBoxLayout()
     layout_order.addWidget(QLabel("Sorted by: "))
     self.order_dropdown = QComboBox()
@@ -374,22 +392,22 @@ class SelectQueries(QWidget):
 
     layout_order.addWidget(self.order_dropdown)
 
-    # TODO: Disable button when no text in table
+    # Run the final query
     self.btn_query = QPushButton("Run Query")
-    self.btn_query.clicked.connect(lambda: self.run_query())
+    self.btn_query.clicked.connect(self.run_query)
     self.btn_query.setDisabled(True)
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
     layout.addWidget(self.att_selected)
-    layout.addWidget(self.constraints_box)
+    layout.addWidget(self.conditions_box)
     layout.addLayout(layout_order)
     layout.addWidget(self.btn_query)
 
     self.setLayout(layout)
 
   def table_activated(self):
-
+    # Allow selection of attributes only when table is selected
     self.btn_query.setDisabled(False)
     self.selected_attributes.clear()
     self.att_dropdown.setDisabled(False)
@@ -399,7 +417,7 @@ class SelectQueries(QWidget):
     
     self.all_attributes = list(get_table_attributes(self.cur, table))
     
-    self.constraints_box.attributes = self.all_attributes.copy()
+    self.conditions_box.attributes = self.all_attributes.copy()
     self.att_dropdown.addItems(self.all_attributes)
 
     self.order_dropdown.setDisabled(False)
@@ -436,28 +454,30 @@ class SelectQueries(QWidget):
     self.att_selected.setText('All attributes selected.')
 
   def run_query(self):
+    
+    # Get data for query
     table = self.table_dropdown.currentText()
     attributes = self.selected_attributes
-    
-    # * FLAG @Ananth - just use this to get the constraints. it returns a list of the formated constraints for the query (see utils for next comment)
-    constraints = self.constraints_box.constraints
+    conditions = self.conditions_box.conditions
     order_by = self.order_dropdown.currentText()
     if order_by in ['', 'None']:
       order_by = None
 
     if attributes:
-      show_table = Table(self.cur, table, attributes, constraints, order_by)
+      show_table = Table(self.cur, table, attributes, conditions, order_by)
       show_table.exec()
     else:
-      error_dialog = ErrorDialog("Please make sure the table and at least 1 attribute is selected.")
+      error_dialog = MessageDialog("Please make sure the table and at least 1 attribute is selected.")
       error_dialog.exec()
 
 
 class UpdateQueries(QWidget):
+  '''Update query to update tables'''
   def __init__(self, con):
     super().__init__()
     self.cur = con.cursor()
 
+    # Layout is very similar to select queries layout, with similar utility functions
     layout = QVBoxLayout()
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
@@ -478,18 +498,16 @@ class UpdateQueries(QWidget):
     layout_att.addWidget(self.att_dropdown)
     layout_att.addWidget(QLabel("To"))
     layout_att.addWidget(self.update_value)
-    
-    # * Where functionality
 
-    self.constraints_box = ConstraintsBox()
-    # TODO: Disable button when no text in table
+    self.conditions_box = ConditionsBox()
+
     self.btn_query = QPushButton("Run Query")
     self.btn_query.clicked.connect(lambda: self.run_query())
     self.btn_query.setDisabled(True)
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
-    layout.addWidget(self.constraints_box)
+    layout.addWidget(self.conditions_box)
     layout.addWidget(self.btn_query)
     self.setLayout(layout)
 
@@ -501,15 +519,15 @@ class UpdateQueries(QWidget):
 
     table = self.table_dropdown.currentText()
     self.all_attributes = list(get_table_attributes(self.cur, table))
-    self.constraints_box.attributes = self.all_attributes.copy()
+    self.conditions_box.attributes = self.all_attributes.copy()
     self.att_dropdown.addItems(self.all_attributes)
     
   def run_query(self):
     table = self.table_dropdown.currentText()
     attribute = self.att_dropdown.currentText()
     value = self.update_value.text()
-    constraints = self.constraints_box.constraints.copy()
-    update_data(self.cur, table, attribute, value, constraints)
+    conditions = self.conditions_box.conditions.copy()
+    update_data(self.cur, table, attribute, value, conditions)
     
   def close(self):
     self.con.close()
@@ -517,10 +535,12 @@ class UpdateQueries(QWidget):
 
     
 class GroupBy(QWidget):
+  '''Group by queries for aggregate functions'''
   def __init__(self, con):
     super().__init__()
     self.cur = con.cursor()
 
+    # Layout is very similar to select queries layout, with similar utility functions
     layout = QVBoxLayout()
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
@@ -549,7 +569,7 @@ class GroupBy(QWidget):
 
 
     # * Where functionality
-    self.constraints_box = ConstraintsBox()
+    self.conditions_box = ConditionsBox()
     
     layout_group = QHBoxLayout()
     layout_group.addWidget(QLabel("Grouped by: "))
@@ -565,7 +585,7 @@ class GroupBy(QWidget):
 
     layout.addLayout(layout_table)
     layout.addLayout(layout_att)
-    layout.addWidget(self.constraints_box)
+    layout.addWidget(self.conditions_box)
     layout.addLayout(layout_group)
     layout.addWidget(self.btn_query)
     self.setLayout(layout)
@@ -580,7 +600,7 @@ class GroupBy(QWidget):
 
     table = self.table_dropdown.currentText()
     self.all_attributes = list(get_table_attributes(self.cur, table))
-    self.constraints_box.attributes = self.all_attributes.copy()
+    self.conditions_box.attributes = self.all_attributes.copy()
     self.att_dropdown.addItems(self.all_attributes)
 
     self.group_dropdown.setDisabled(False)
@@ -594,19 +614,21 @@ class GroupBy(QWidget):
     table = self.table_dropdown.currentText()
     attribute = self.att_dropdown.currentText()
     func = self.agg_function.currentText()
-    constraints = self.constraints_box.constraints
+    conditions = self.conditions_box.conditions
     group_by = self.group_dropdown.currentText()
     
-    table = Table(self.cur, table, group_by=True, func=func, attribute=attribute, constraints=constraints, group_by_attr=group_by)
+    table = Table(self.cur, table, group_by=True, func=func, attribute=attribute, conditions=conditions, group_by_attr=group_by)
     table.exec()
     
     
 class DeleteData(QWidget):
+  '''Delete data from tables'''
   def __init__(self, con):
     super().__init__()
     self.con = con
     self.cur = con.cursor()
 
+    # Layout is very similar to select queries layout, with similar utility functions
     layout = QVBoxLayout()
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
@@ -617,7 +639,7 @@ class DeleteData(QWidget):
     layout_table.addWidget(table_title)
     layout_table.addWidget(self.table_dropdown)
     
-    self.constraints_box = ConstraintsBox()
+    self.conditions_box = ConditionsBox()
 
     # TODO: Disable button when no text in table
     self.btn_delete = QPushButton("Delete Rows")
@@ -625,7 +647,7 @@ class DeleteData(QWidget):
     self.btn_delete.setDisabled(True)
 
     layout.addLayout(layout_table)
-    layout.addWidget(self.constraints_box)
+    layout.addWidget(self.conditions_box)
     layout.addWidget(self.btn_delete)
 
     self.setLayout(layout)
@@ -634,15 +656,16 @@ class DeleteData(QWidget):
   def table_activated(self):
     self.btn_delete.setDisabled(False)
     table = self.table_dropdown.currentText()
-    self.constraints_box.attributes = list(get_table_attributes(self.cur, table))
+    self.conditions_box.attributes = list(get_table_attributes(self.cur, table))
 
   def run_delete(self):
     table = self.table_dropdown.currentText()
-    constraints = self.constraints_box.constraints
-    delete_rows(self.con, table, constraints)
+    conditions = self.conditions_box.conditions
+    delete_rows(self.con, table, conditions)
     
 
 class NaturalJoin(QWidget):
+  '''Join 2 tables'''
   def __init__(self, con):
     super().__init__()
     self.cur = con.cursor()
@@ -652,6 +675,7 @@ class NaturalJoin(QWidget):
     
     tables = list(get_tables(self.cur))
     
+    # Sublayouts to select the 2 tables to join
     table_title_1 = QLabel("Table 1: ")
     self.table_dropdown_1 = QComboBox()
     self.table_dropdown_1.addItems(tables)
@@ -680,7 +704,7 @@ class NaturalJoin(QWidget):
     table_2 = self.table_dropdown_2.currentText()
     
     if table_1 == table_2 or table_1 == '' or table_2 == '':
-      dialog = ErrorDialog("Please select different tables")
+      dialog = MessageDialog("Please select different tables")
       dialog.exec()
       return
     
