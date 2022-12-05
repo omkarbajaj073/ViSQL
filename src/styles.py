@@ -21,6 +21,15 @@ queryStyles = '''
     padding: 4px 4px 4px 4px;
     background: #f2bbb8;
   }
+
+  QComboBox {
+    background: #C1D1FD;
+  }
+
+  QLineEdit {
+    background: #F2E8B1
+  }
+
 '''
 
 

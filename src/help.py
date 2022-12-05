@@ -23,7 +23,8 @@ ViSQL User Guide
         - <attribute> | <operator> | "string"
         - name = "monty python"
 
-4. Use the menu options to direct you to the pages to create a new table, describe a table, insert data, query the table, delete tables and so on. Rest is as directed by the forms to run queries.
+4. Use the menu options to direct you to the pages to create a new table, describe a table, insert data, query the table, delete tables and so on.
+   Rest is as directed by the forms to run queries.
 
 MySQL metadata
     + host: {host}
