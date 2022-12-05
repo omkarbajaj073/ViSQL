@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import *
 import mysql.connector as connector
 
 from utils import *
+from styles import *
 
 
 class CreateAttribute(QDialog):
@@ -599,7 +600,6 @@ class GroupBy(QWidget):
     table = Table(self.cur, table, group_by=True, func=func, attribute=attribute, constraints=constraints, group_by_attr=group_by)
     table.exec()
     
-   
     
 class DeleteData(QWidget):
   def __init__(self, con):

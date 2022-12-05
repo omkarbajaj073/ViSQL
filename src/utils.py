@@ -7,8 +7,7 @@ from datetime import datetime as time
 import os
 
 logging.basicConfig(level=logging.DEBUG)
-
-
+  
 
 class ErrorDialog(QDialog):
   def __init__(self, error):
@@ -16,14 +15,14 @@ class ErrorDialog(QDialog):
     layout = QVBoxLayout()
     layout.addWidget(QLabel(error))
     self.setLayout(layout)
-
+    
 class SuccessDialog(QDialog):
-  def __init__(self, txt):
+  def __init__(self, msg):
     super().__init__()
     layout = QVBoxLayout()
-    layout.addWidget(QLabel(txt))
+    layout.addWidget(QLabel(msg))
     self.setLayout(layout)
-    
+
 
 def get_databases():
   try:

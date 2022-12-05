@@ -1,40 +1,37 @@
 
 queryStyles = '''
-  QWidget {
-    background: #49d0eb;
-  }
   QLabel {
-    background: #33DBA8;
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 2px;
-    padding: 20px 20px 20px 20px;
-    font-size: 16px;
+    border-radius: 2px;
+    border-width: 1px;
+    height: 20px;
+    padding: 4px 4px 4px 4px;
+    font-size: 12px;
     font-family: consolas, sans-serif;
   }
+  
+  QRadioButton {
+    background: #b1f2ef;
+  }
+  
   QVBoxLayout {
     background: #ffffff;
     width: 400px;
   }
   QPushButton {
-    position: relative;
-    height: 50px;
-    width: 100px;
-    background: #f2bbb8;
-  }
-  
-  QComboBox {
-
+    height: auto;
+    width: auto;
+    padding: 4px 4px 4px 4px;
+    background: #96e3fa;
   }
 '''
 
 
-styles = '''
+homeStyles = '''
   QWidget {
-    background: #49d0eb;
+    background: #b1f2ef;
   }
   QLabel {
-    background: #33DBA8;
+    background: #8cffba;
     border-radius: 10px;
     border-style: solid;
     border-width: 2px;
@@ -51,12 +48,5 @@ styles = '''
     height: 50px;
     width: 100px;
     background: #f2bbb8;
-  }
-  
-  QComboBox {
-
-  }
-'''
-
-stylesCreateTable = '''
+  }  
 '''
