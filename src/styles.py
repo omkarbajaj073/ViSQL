@@ -1,7 +1,7 @@
 
 queryStyles = '''
   QLabel {
-    border-radius: 2px;
+    border-radius: 4px;
     border-width: 1px;
     height: 20px;
     padding: 4px 4px 4px 4px;
@@ -18,10 +18,8 @@ queryStyles = '''
     width: 400px;
   }
   QPushButton {
-    height: auto;
-    width: auto;
     padding: 4px 4px 4px 4px;
-    background: #96e3fa;
+    background: #f2bbb8;
   }
 '''
 
@@ -43,10 +41,4 @@ homeStyles = '''
     background: #ffffff;
     width: 400px;
   }
-  QPushButton {
-    position: relative;
-    height: 50px;
-    width: 100px;
-    background: #f2bbb8;
-  }  
 '''
