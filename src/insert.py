@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import *
 
-import sys
+from styles import queryStyles
 from constants import *
 from components import *
 
@@ -94,6 +94,7 @@ class InsertData(QWidget):
 
     self.data = []
     self.setLayout(layout)
+    self.setStyleSheet(queryStyles)
 
 
   def add_item(self):

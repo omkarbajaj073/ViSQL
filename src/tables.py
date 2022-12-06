@@ -135,6 +135,7 @@ class CreateTable(QWidget):
     layout.addWidget(create_table_btn)
 
     self.setLayout(layout)
+    self.setStyleSheet(queryStyles)
 
 
   def add_attribute(self):
@@ -181,6 +182,7 @@ class DeleteTable(QWidget):
     layout.addWidget(self.delete_table_btn)
 
     self.setLayout(layout)
+    self.setStyleSheet(queryStyles)
 
     
   def table_activated(self):
@@ -222,8 +224,8 @@ class DescribeTable(QWidget):
     self.layout.addWidget(self.desc_table_btn)
 
     self.setLayout(self.layout)
-
     self.setMinimumSize(750, 500)
+    self.setStyleSheet(queryStyles)
     
   def table_activated(self):
     self.desc_table_btn.setDisabled(False)
