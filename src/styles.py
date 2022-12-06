@@ -1,3 +1,4 @@
+# CSS styling for all pages
 
 queryStyles = '''
   QLabel {

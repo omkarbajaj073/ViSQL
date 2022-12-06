@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import *
 import os
 from constants import *
 
+
+# Path of the file - desktop of the default user in the current system
 path = os.path.join(os.environ['USERPROFILE'], 'Desktop', 'ViSQL_log.txt')
 
 help_msg = f'''
@@ -33,6 +35,7 @@ MySQL metadata
 '''
 
 class Help(QDialog):
+  '''Dialog to display the help page'''
   def __init__(self):
     super().__init__()
     layout = QVBoxLayout()

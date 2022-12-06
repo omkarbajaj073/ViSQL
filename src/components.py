@@ -568,7 +568,7 @@ class GroupBy(QWidget):
     layout_att.addWidget(self.att_dropdown)
 
 
-    # * Where functionality
+    # Where functionality
     self.conditions_box = ConditionsBox()
     
     layout_group = QHBoxLayout()
