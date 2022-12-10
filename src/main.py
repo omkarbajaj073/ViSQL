@@ -123,8 +123,7 @@ class Menu:
         help_action = QAction(self.menuBar)
         help_action.setText("Help")
         help_action.triggered.connect(self.show_help)
-        self.menuBar.addAction(help_action)
-        
+        self.menuBar.addAction(help_action)        
 
     def show_create(self):
         # Dialog to create a new database

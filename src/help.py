@@ -10,9 +10,9 @@ help_msg = f'''
 ViSQL User Guide
 
 1. Accessing a database
-    + The title of the ViSQL window indicates whether a databse has been selected or not, and if so, which database has been selected.
+    + The title of the ViSQL window indicates whether a database has been selected or not, and if so, which database has been selected.
     + If the message reads (NO DATABASE SELECTED), please proceed as indicated below.
-        - In the Database Functions dropdown, click Select Database. A dropdown of available databses will appear.
+        - In the Database Functions dropdown, click Select Database. A dropdown of available databases will appear.
     + To create a databse, click Create Database in the same dropdown.
 
 2. History of all queries performed

@@ -46,4 +46,7 @@ homeStyles = '''
     background: #ffffff;
     width: 400px;
   }
+  QMenu {
+    background: #D4D4D4;
+  }
 '''
