@@ -1,25 +1,20 @@
 from PyQt6.QtWidgets import *
 from components import *
 
-import logging
 from utils import *
 from constants import *
 
 from styles import queryStyles
 
-logging.basicConfig(level=logging.DEBUG)
-
-
 class ManageTables(QWidget):
-
+  '''Querying operations on a table'''
   def __init__(self, db):
     super().__init__()
 
-    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
-    logging.info("connected" if self.con.is_connected() else "not connected but no error")
-
+    self.con = connector.connect(host=host, password=password, user=user, database=db)
     layout = QVBoxLayout()
 
+    # CHeckboxes for selecting table operation
     db_action_layout = QHBoxLayout()
     check1 = QRadioButton('Select')
     check1.toggled.connect(lambda:self.select_action(check1))
@@ -38,7 +33,7 @@ class ManageTables(QWidget):
     db_action_layout.addWidget(check4)
     db_action_layout.addWidget(check5)
 
-    # * Select action layout
+    # Fetch components
     self.select_layout = SelectQueries(self.con)
     self.update_layout = UpdateQueries(self.con)
     self.group_layout = GroupBy(self.con)
@@ -51,7 +46,6 @@ class ManageTables(QWidget):
     self.delete_layout.hide()
     self.join_layout.hide()
 
-
     layout.addLayout(db_action_layout)
     layout.addWidget(self.select_layout)
     layout.addWidget(self.update_layout)
@@ -61,10 +55,11 @@ class ManageTables(QWidget):
 
     self.setLayout(layout)
     self.setMinimumSize(750, 500)
-    self.setStyleSheet(queryStyles) # > FLAG @Ananth. Using stylesheets.
+    self.setStyleSheet(queryStyles)
 
 
   def select_action(self, b):
+    # Shows page corresponding to operation selected
     if b.text() == "Select":
       if b.isChecked():
         self.select_layout.show()
@@ -98,17 +93,18 @@ class ManageTables(QWidget):
         
   def close(self):
     self.con.close()
-    logging.info("Connection closed")
     super().close()
 
 
 class CreateTable(QWidget):
+  '''Create table in database'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db)
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
 
+    # Input field to enter new table name
     layout_title = QHBoxLayout()
     layout_title.addWidget(QLabel("Table Name: "))
     self.name = QLineEdit()
@@ -119,7 +115,7 @@ class CreateTable(QWidget):
 
     self.attributes = []
 
-    # TODO: Adjust the geometry of the table
+    # Table to display attributes created
     headers = ['Name', 'Data Type', 'Not Null?', 'Primary Key?', 'Default Value']
     self.table = QTableWidget(0, 5)
     self.table.setHorizontalHeaderLabels(headers)
@@ -127,7 +123,6 @@ class CreateTable(QWidget):
     create_table_btn = QPushButton("Create Table")
     create_table_btn.clicked.connect(self.create_table)
     
-
     layout.addLayout(layout_title)
     layout.addWidget(add_att)
     layout.addWidget(self.table)
@@ -138,14 +133,13 @@ class CreateTable(QWidget):
 
 
   def add_attribute(self):
+    # Dialog to add new attribute
     dialog = CreateAttribute(self)
     dialog.exec()
 
 
   def create_table(self):
-    # ! Add a few checks
-    name = self.name.text()
-    logging.debug(f'{name=}')
+    # Run mysql query to create table
     create_table(self.cur, self.name.text(), self.attributes)
     dialog = MessageDialog("Table created!")
     dialog.exec()
@@ -157,12 +151,14 @@ class CreateTable(QWidget):
 
 
 class DeleteTable(QWidget):
+  '''Delete table from database'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db)
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
 
+    # Dropdown to select table to be deleted
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
     self.table_dropdown = QComboBox()
@@ -176,7 +172,6 @@ class DeleteTable(QWidget):
     self.delete_table_btn.setDisabled(True)
     self.delete_table_btn.clicked.connect(self.delete_table)
     
-
     layout.addLayout(layout_table)
     layout.addWidget(self.delete_table_btn)
 
@@ -185,14 +180,11 @@ class DeleteTable(QWidget):
 
     
   def table_activated(self):
-    self.delete_table_btn.setDisabled(False)
-
+    self.delete_table_btn.setDisabled(False) # Allow deletion only once table selected
 
   def delete_table(self):
     table = self.table_dropdown.currentText()
-    delete_table(self.cur, table)
-    logging.info(f'{table} table DELETED')
-    
+    delete_table(self.cur, table)    
     
   def close(self):
     self.con.close()
@@ -200,12 +192,14 @@ class DeleteTable(QWidget):
 
 
 class DescribeTable(QWidget):
+  '''Display table structure'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db) # ! Update parameters eventually
+    self.con = connector.connect(host=host, password=password, user=user, database=db)
     self.cur = self.con.cursor()
     self.layout = QVBoxLayout()
 
+    # Dropdown to select table
     layout_table = QHBoxLayout()
     table_title = QLabel("Table: ")
     self.table_dropdown = QComboBox()
@@ -233,16 +227,17 @@ class DescribeTable(QWidget):
     table_name = self.table_dropdown.currentText()
     
     try:
-      self.table.hide()
+      self.table.hide() # Hide previous table structure displayed
     except:
       pass
 
     self.cur.execute(f"desc {table_name}")
     self.results = self.cur.fetchall()
 
-    headers = list(map(lambda i : i[0], self.cur.description))
+    headers = list(map(lambda i : i[0], self.cur.description)) # Extract the structure attributes
 
     try:
+      # Table to display structure of selected mysql table
       x, y = len(self.results), len(self.results[0])
       self.table = QTableWidget(x, y)
       self.table.setHorizontalHeaderLabels(headers)
@@ -250,6 +245,7 @@ class DescribeTable(QWidget):
       for i in range(x):
         for j in range(y):
           item = self.results[i][j]
+          # Mysql returns some values as byte strings; convert to regular utf-8
           if type(item) is bytes:
             cell = QTableWidgetItem(str(item, 'utf-8'))
           else:
@@ -261,8 +257,6 @@ class DescribeTable(QWidget):
     except Exception as e:
       dialog = MessageDialog(str(e))
       dialog.exec()
-      
-    logging.debug(f"{self.results=}")
 
 
     
