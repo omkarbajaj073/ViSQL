@@ -8,11 +8,9 @@ queryStyles = '''
     font-size: 12px;
     font-family: consolas, sans-serif;
   }
-  
   QRadioButton {
     background: #b1f2ef;
   }
-  
   QVBoxLayout {
     background: #ffffff;
     width: 400px;
@@ -21,15 +19,12 @@ queryStyles = '''
     padding: 4px 4px 4px 4px;
     background: #f2bbb8;
   }
-
   QComboBox {
     background: #C1D1FD;
   }
-
   QLineEdit {
     background: #F2E8B1
   }
-
 '''
 
 

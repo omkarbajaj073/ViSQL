@@ -12,7 +12,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 class ManageTables(QWidget):
 
-  # ! Need to rerender when different database selected
   def __init__(self, db):
     super().__init__()
 
@@ -264,9 +263,6 @@ class DescribeTable(QWidget):
       dialog.exec()
       
     logging.debug(f"{self.results=}")
-    # * Sample output - results=[('id', b'int(11)', 'NO', 'PRI', None, ''), ('name', b'varchar(30)', 'NO', '', b'aa', '')] FLAG @Ananth
-    # TODO: Update table
-    
 
 
     
