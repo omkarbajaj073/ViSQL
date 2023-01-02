@@ -3,7 +3,7 @@ from datetime import datetime as time
 from PyQt6.QtWidgets import *
 import mysql.connector as connector
 
-from constants import *
+from constants import kwargs
 
 
 class MessageDialog(QDialog):
@@ -18,7 +18,7 @@ class MessageDialog(QDialog):
 def get_databases():
   '''Get all databases on the host and user (see constants.py)'''
   try:
-    con = connector.connect(host=host, user=user, password=password)
+    con = connector.connect(**kwargs)
     cur = con.cursor()
     cur.execute('show databases')
     dbs = cur.fetchall()
@@ -33,7 +33,7 @@ def get_databases():
 def create_database(name):
   '''Create database on given connection'''
   try:
-    con = connector.connect(host=host, user=user, password=password)
+    con = connector.connect(**kwargs)
     cur = con.cursor()
     query = f'create database {name}'
     cur.execute(query)
@@ -245,8 +245,8 @@ def save_to_file(query):
     # If first time using the application, log the host, user, and time of creation of the session
     with open(path, 'x') as f:
       f.write(f"""/* METADATA:
-      host: {host}
-      user: {user}
+      host: {kwargs['host']}
+      user: {kwargs['user']}
       created: {time.now()} */\n\n""")
 
   except FileExistsError:

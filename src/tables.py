@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import *
 from components import *
 
 from utils import *
-from constants import *
+from constants import kwargs
 
 from styles import queryStyles
 
@@ -11,7 +11,7 @@ class ManageTables(QWidget):
   def __init__(self, db):
     super().__init__()
 
-    self.con = connector.connect(host=host, password=password, user=user, database=db)
+    self.con = connector.connect(**kwargs, database=db)
     layout = QVBoxLayout()
 
     # CHeckboxes for selecting table operation
@@ -100,7 +100,7 @@ class CreateTable(QWidget):
   '''Create table in database'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db)
+    self.con = connector.connect(**kwargs, database=db)
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
 
@@ -154,7 +154,7 @@ class DeleteTable(QWidget):
   '''Delete table from database'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db)
+    self.con = connector.connect(**kwargs, database=db)
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
 
@@ -195,7 +195,7 @@ class DescribeTable(QWidget):
   '''Display table structure'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db)
+    self.con = connector.connect(**kwargs, database=db)
     self.cur = self.con.cursor()
     self.layout = QVBoxLayout()
 

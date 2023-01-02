@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import *
 
 from styles import queryStyles
-from constants import *
+from constants import kwargs
 from components import *
 
 from utils import *
@@ -60,7 +60,7 @@ class InsertData(QWidget):
   '''Insert data into an existing table'''
   def __init__(self, db):
     super().__init__()
-    self.con = connector.connect(host=host, password=password, user=user, database=db) 
+    self.con = connector.connect(**kwargs, database=db) 
     self.cur = self.con.cursor()
     layout = QVBoxLayout()
     

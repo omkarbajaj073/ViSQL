@@ -29,7 +29,7 @@ class Home(QWidget):
 
 class MainWindow(QMainWindow):
     '''Main window through which application runs'''
-    def __init__(self, widgets, **kwargs):
+    def __init__(self, widgets):
         super().__init__()
         self.setWindowTitle("ViSQL")
         self.setFixedSize(800, 600)
@@ -170,7 +170,7 @@ def main():
     # Intialising the application
     app = QApplication(sys.argv)
     widget1 = Home()
-    w = MainWindow([widget1, QWidget()], host=host, user=user, password=password)
+    w = MainWindow([widget1, QWidget()])
     m = Menu(w)
     w.setStyleSheet(homeStyles)
     w.show()
