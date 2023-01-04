@@ -12,4 +12,5 @@
 2. Check constraint not supported (create table queries)
 3. Foreign keys not supported (create table queries)
 4. Cannot change user/host of MySQL server from within the application. Admin must update `constants.py` for this.
+5. Alter queries not supported
 (There may be others too ... )
