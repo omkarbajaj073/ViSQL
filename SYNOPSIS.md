@@ -5,4 +5,4 @@ To create a GUI for users to interact with MySQL without the need for prior know
 
 ### Tech Stack
 Frontend - PyQt6
-Backend - mysql.connector, an email client (_TBD which email client to use_)
+Backend - mysql.connector

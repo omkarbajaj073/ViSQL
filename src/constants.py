@@ -10,7 +10,7 @@
 # user = 'JIRfqA1pNQ'
 # password = 'dwTF2uPRwT'
 
-# # Random other connection
+# # Random other public mysql db (read-only). data insertion and deletion won't work for this db
 # https://docs.rfam.org/en/latest/database.html
 kwargs = {
   'host': 'mysql-rfam-public.ebi.ac.uk',
