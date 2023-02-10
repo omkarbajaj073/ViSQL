@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import *
 import os
-from constants import *
+from constants import kwargs
 
 
 # Path of the file - desktop of the default user in the current system
@@ -29,8 +29,8 @@ ViSQL User Guide
    Rest is as directed by the forms to run queries.
 
 MySQL metadata
-    + host: {host}
-    + user: {user}
+    + host: {kwargs['host']}
+    + user: {kwargs['user']}
 
 '''
 
